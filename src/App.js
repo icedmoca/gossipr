@@ -52,22 +52,22 @@ export default class extends React.Component{
 
 class Infos extends React.Component{
   state = {peers: 0, avatar: localStorage.getItem('avatar') }
-  componentDidMount(){ window.appBar = this }
-  menuButton =  {
-    width: 36, height: 36,
-    marginRight: 10,
-  }
+  componentDidMount(){ window.appBar = this } 
   handleAvatarUpload = (ev) => {
     const file = ev.target.files[0]
+    ev.target.value = ""
     
     dataURL(file, (avatar) => {
-      this.setState({ avatar })
+      this.setState({avatar})
       localStorage.setItem('avatar', avatar)
     })
-
     upload(file, (hash) => {
       localStorage.setItem('avatar-hash', hash)
     })
+  }
+  handleAvatarClick = () => {
+    if(this.state.avatar) this.handleAvatarDelete()
+    else document.getElementById('avatarUploader').click()
   }
   handleAvatarDelete = () => {
     this.setState({avatar: null})
@@ -85,16 +85,12 @@ class Infos extends React.Component{
           style={{display: 'none'}}
           onChange={this.handleAvatarUpload}
         />
-        <Holdable
-          onClickComplete={(ev) => document.getElementById('avatarUploader').click()}
-          onHoldComplete={this.handleAvatarDelete}
-          timeout={100}>
-          <Avatar 
-            src={this.state.avatar}
-            style={this.menuButton}
-            children={<AvatarIcon/>}
-          />
-        </Holdable>
+        <Avatar
+          onClick={this.handleAvatarClick}
+          src={this.state.avatar}
+          style={{width: 36, height: 36, marginRight: 10}}
+          children={<AvatarIcon/>}
+        />
         <InputBase 
           style={{color: 'white', fontWeight: 'bold', fontSize: '20px', flex: 1, marginRight: 20}}
           defaultValue={localStorage.getItem('name') || "Gossipr"}
@@ -105,11 +101,11 @@ class Infos extends React.Component{
           {this.state.peers+" connecté(s)"}
         </Typography>
         <IconButton 
-          style={{marginLeft: 10}}
+          style={{width: 36, height: 36, padding: 0, marginLeft: 10}}
           color='inherit' 
-          onClick={this.props.switchTheme}>
-          <ThemeIcon/>
-        </IconButton>
+          onClick={this.props.switchTheme}
+          children={<ThemeIcon/>}
+        />
       </Toolbar>
     </AppBar>
   }

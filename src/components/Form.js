@@ -41,7 +41,7 @@ const publish = str => {
 };
 
 export default class extends React.Component {
-  state = { ready: false, recording: false, record: null, dataURL: null }
+  state = { ready: false, recording: false, record: null, dataURL: null, writing: false }
   componentDidMount() { window.form = this; }
   handleRecord = () => {
     if(!this.state.recording){
@@ -65,11 +65,14 @@ export default class extends React.Component {
     }
   }
   handleSend = () => {
-    if(!this.state.record) send(msg(window.writing))
+    if (!this.state.record) send(msg(document.getElementById('writingInput').value))
     else upload(this.state.record, (hash) => {
-      window.writing = null
       send(audio(hash))
     }) 
+  }
+  handleClearWriting = () => {
+    document.getElementById('writingInput').value = ""
+    this.setState({writing: false})
   }
   render() {
     return <AppBar color="default" position='sticky'>
@@ -80,29 +83,36 @@ export default class extends React.Component {
           style={{width: 36, height: 36, padding: 0, marginRight: 10}}>
           {(this.state.recording)?(<RecordIcon/>):(<RecordNoneIcon/>)}
         </IconButton>
-        {(!this.state.record)?(
+        {(!this.state.record)?(<>
           <InputBase
+            id="writingInput"
             style={{flex: 1, margin: '0 10px 0 0'}}
             placeholder="Tapez un message"
             onFocus={ev => ev.target.select()}
-            onChange={ev => { window.writing = ev.target.value }}
+            onChange={ev => this.setState({ writing: Boolean(ev.target.value)})}
             onKeyPress={ev => {
-              (ev.key === "Enter") &&
-                send(msg(ev.target.value))
+              (ev.key === "Enter") && send(msg(ev.target.value))
             }}
           />
-        ):(<>
+          {(this.state.writing) && (
+            <CloseIcon onClick={this.handleClearWriting}/>
+          )}
+        </>):(<>
           <CloseIcon onClick={() => this.setState({record: null})}/>
           <audio className='grow' controls>
             <source src={this.state.dataURL}/>
           </audio>
         </>)}
         {(this.state.ready) ? (
-          <IconButton onClick={this.handleSend}><SendIcon /></IconButton>
+          <IconButton 
+            style={{ width: 36, height: 36, padding: 0, marginLeft: 10 }}
+            onClick={this.handleSend}>
+            <SendIcon />
+          </IconButton>
         ) : (
           <CircularProgress 
-            style={{marginRight: 15}}
-            color='default' 
+            style={{marginLeft: 10, marginRight: 10}}
+            color='inherit' 
             size={20}/>
         )}
       </Toolbar>

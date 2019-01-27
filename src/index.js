@@ -4,12 +4,6 @@ import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 
-if(window.location.protocol==='http:'){
-  const https = window.location.href.replace('http', 'https')
-  if(!['127.0.0.1','localhost'].includes(window.location.hostname))
-  fetch(https).then(() => window.location.href = https)
-}
-
 ReactDOM.render(<App />, document.getElementById('root'));
 
 export const json = str => JSON.parse(str);
@@ -31,7 +25,8 @@ node.on("ready", async () => {
 
   await node.pubsub.subscribe("gossipr", packet => {
     const msg = json(packet.data.toString());
-    if(msg.name && msg.data) window.logger.log(msg);
+    const blocked = json(localStorage.getItem('blocked')) || []
+    if(msg.data && !blocked.includes(packet.from)) window.logger.log(packet.from, msg);
   });
 
   window.form.setState({ ready: true });

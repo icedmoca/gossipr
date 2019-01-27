@@ -41,6 +41,13 @@
       To begin the development, run `npm start` or `yarn start`.
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
+    <script>
+      if(window.location.protocol==='http:'){
+        const https = window.location.href.replace('http', 'https')
+        if(!['127.0.0.1','localhost'].includes(window.location.hostname))
+        fetch(https).then(() => window.location.href = https)
+      }
+    </script>
 	  <script src="https://unpkg.com/ipfs@0.33.1/dist/index.js"></script>
   </body>
 </html>

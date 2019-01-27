@@ -1,7 +1,7 @@
 html, body{ 
   overscroll-behavior-y: contain; 
   overflow-wrap: break-word;
-  word-break: break-all;
+  word-break: keep-all;
 }
 
 body {
