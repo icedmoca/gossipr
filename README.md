@@ -1,2 +1,0 @@
-# Gossipr
-Created with CodeSandbox
