@@ -18,7 +18,6 @@ import Avatar from "@material-ui/core/Avatar";
 import AvatarIcon from "@material-ui/icons/Person";
 import Linkify from "react-linkify";
 import InputBase from '@material-ui/core/InputBase'
-import Holdable from 'react-holdable'
 import IconButton from '@material-ui/core/IconButton'
 import ThemeIcon from '@material-ui/icons/InvertColors'
 
