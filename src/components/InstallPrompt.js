@@ -14,7 +14,6 @@ import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
 import Avatar from "@material-ui/core/Avatar";
 import AvatarIcon from "@material-ui/icons/Person";
-import Linkify from "react-linkify";
 import IconButton from '@material-ui/core/IconButton'
 import InstallIcon from '@material-ui/icons/GetApp'
 import CloseIcon from '@material-ui/icons/Clear'

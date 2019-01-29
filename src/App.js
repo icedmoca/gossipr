@@ -1,25 +1,16 @@
 import React from 'react'
-import ReactDOM from 'react-dom';
 
 import './index.css';
 
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
-import TextField from "@material-ui/core/TextField";
-import Button from "@material-ui/core/Button";
-import Grid from "@material-ui/core/Grid";
-import Divider from "@material-ui/core/Divider";
-import Paper from "@material-ui/core/Paper";
-import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemText from "@material-ui/core/ListItemText";
 import Avatar from "@material-ui/core/Avatar";
 import AvatarIcon from "@material-ui/icons/Person";
-import Linkify from "react-linkify";
 import InputBase from '@material-ui/core/InputBase'
 import IconButton from '@material-ui/core/IconButton'
 import ThemeIcon from '@material-ui/icons/InvertColors'
+import ClearAllIcon from '@material-ui/icons/ClearAll'
 
 import Form from "./components/Form";
 import Log from "./components/Log";
@@ -104,6 +95,12 @@ class Infos extends React.Component{
           color='inherit' 
           onClick={this.props.switchTheme}
           children={<ThemeIcon/>}
+        />
+        <IconButton
+          style={{width: 36, height: 36, padding: 0}}
+          color='inherit' 
+          onClick={() => window.logger.clear()}
+          children={<ClearAllIcon/>}
         />
       </Toolbar>
     </AppBar>

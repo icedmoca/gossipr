@@ -19,5 +19,9 @@ code {
     monospace;
 }
 
+a {
+  color: inherit;
+}
+
 .noselect { user-select: none; }
 .grow{ flex-grow: 1; }

@@ -11,9 +11,12 @@
     "date-and-time": "0.6.3",
     "react": "16.5.2",
     "react-dom": "16.5.2",
-    "react-linkify": "0.2.2",
     "react-scripts": "2.0.3",
-    "recorder-js": "1.0.7"
+    "recorder-js": "1.0.7",
+    "remark": "10.0.1",
+    "remark-breaks": "1.0.2",
+    "remark-images": "0.16.8",
+    "remark-react": "5.0.1"
   },
   "devDependencies": {},
   "scripts": {

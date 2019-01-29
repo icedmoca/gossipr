@@ -4,6 +4,8 @@ import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 
+window.onhashchange = () => window.location.reload()
+
 ReactDOM.render(<App />, document.getElementById('root'));
 
 export const json = str => JSON.parse(str);
@@ -23,7 +25,7 @@ export const node = (window.node = new window.Ipfs({
 node.on("ready", async () => {
   const id = (window.id = (await node.id()).id);
 
-  await node.pubsub.subscribe("gossipr", packet => {
+  await node.pubsub.subscribe("gossipr"+window.location.hash, packet => {
     const msg = json(packet.data.toString());
     const blocked = json(localStorage.getItem('blocked')) || []
     if(msg.data && !blocked.includes(packet.from)) window.logger.log(packet.from, msg);

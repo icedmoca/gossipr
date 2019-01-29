@@ -1,20 +1,7 @@
 import React from "react";
-import ReactDOM from "react-dom";
 
 import AppBar from '@material-ui/core/AppBar'
 import Toolbar from '@material-ui/core/Toolbar'
-import Typography from "@material-ui/core/Typography";
-import TextField from "@material-ui/core/TextField";
-import Button from "@material-ui/core/Button";
-import Grid from '@material-ui/core/Grid'
-import Divider from '@material-ui/core/Divider'
-import Paper from '@material-ui/core/Paper'
-import List from '@material-ui/core/List'
-import ListItem from '@material-ui/core/ListItem'
-import ListItemText from '@material-ui/core/ListItemText'
-import Avatar from '@material-ui/core/Avatar'
-import AvatarIcon from '@material-ui/icons/Person'
-import Linkify from 'react-linkify'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import SendIcon from '@material-ui/icons/Send'
 import InputBase from '@material-ui/core/InputBase'
@@ -23,6 +10,8 @@ import RecordIcon from '@material-ui/icons/Mic'
 import RecordNoneIcon from '@material-ui/icons/MicNone'
 import CloseIcon from '@material-ui/icons/Clear'
 import Recorder from 'recorder-js';
+import MultilineIcon from '@material-ui/icons/SubdirectoryArrowLeft'
+import SinglelineIcon from '@material-ui/icons/ArrowForward'
 
 import { node, str, json, upload, dataURL } from '../index'
 
@@ -37,11 +26,11 @@ const audio = data => ({...msg(data), type: 'audio'})
 const buffer = str => node.types.Buffer.from(str);
 const send = data => publish(str(data));
 const publish = str => {
-  window.node.pubsub.publish("gossipr", buffer(str));
+  window.node.pubsub.publish("gossipr"+window.location.hash, buffer(str));
 };
 
 export default class extends React.Component {
-  state = { ready: false, recording: false, record: null, dataURL: null, writing: false }
+  state = { ready: false, multiline: true, recording: false, record: null, dataURL: null, writing: false }
   componentDidMount() { window.form = this; }
   handleRecord = () => {
     if(!this.state.recording){
@@ -64,14 +53,27 @@ export default class extends React.Component {
       })
     }
   }
+  getInput = () => document.getElementById('writingInput')
+  setValue = () => this.getInput().value = this.state.value
+  clearValue = () => {
+    this.getInput().value = ""
+    this.setState({multiline: false})
+    setTimeout(() => {
+      this.setState({multiline: true})
+      this.getInput().focus()
+    }, 100)
+  }
   handleSend = () => {
-    if (!this.state.record) send(msg(document.getElementById('writingInput').value))
+    if (!this.state.record){
+      send(msg(this.getInput().value))
+      this.handleClearWriting()
+    }
     else upload(this.state.record, (hash) => {
       send(audio(hash))
     }) 
   }
   handleClearWriting = () => {
-    document.getElementById('writingInput').value = ""
+    this.clearValue()
     this.setState({writing: false})
   }
   render() {
@@ -83,25 +85,27 @@ export default class extends React.Component {
           style={{width: 36, height: 36, padding: 0, marginRight: 10}}>
           {(this.state.recording)?(<RecordIcon/>):(<RecordNoneIcon/>)}
         </IconButton>
-        {(!this.state.record)?(<>
+        {(this.state.record)?(<>
+          <CloseIcon onClick={() => this.setState({record: null})}/>
+          <audio className='grow' controls>
+            <source src={this.state.dataURL}/>
+          </audio>
+        </>) : (<>
           <InputBase
+            multiline={this.state.multiline}
+            rowsMax="10"
             id="writingInput"
             style={{flex: 1, margin: '0 10px 0 0'}}
             placeholder="Tapez un message"
-            onFocus={ev => ev.target.select()}
+            onFocus={this.handleFocus}
             onChange={ev => this.setState({ writing: Boolean(ev.target.value)})}
             onKeyPress={ev => {
-              (ev.key === "Enter") && send(msg(ev.target.value))
+              (!this.state.multiline) && (ev.key === "Enter") && this.handleSend()
             }}
           />
           {(this.state.writing) && (
             <CloseIcon onClick={this.handleClearWriting}/>
           )}
-        </>):(<>
-          <CloseIcon onClick={() => this.setState({record: null})}/>
-          <audio className='grow' controls>
-            <source src={this.state.dataURL}/>
-          </audio>
         </>)}
         {(this.state.ready) ? (
           <IconButton 
