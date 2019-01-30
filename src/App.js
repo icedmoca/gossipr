@@ -20,12 +20,19 @@ import TextField from '@material-ui/core/TextField'
 import InputAdornment from '@material-ui/core/InputAdornment'
 import IconButton from '@material-ui/core/IconButton'
 import JoinIcon from '@material-ui/icons/Send'
-import AppBar from '@material-ui/core/AppBar'
+
 import Toolbar from '@material-ui/core/Toolbar'
 import PinIcon from '@material-ui/icons/PinDrop'
 
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import Button from '@material-ui/core/Button'
+
 export default class extends React.Component{
-  state = { hash: window.location.hash, theme: localStorage.getItem('theme') || "light" }
+  state = { hash: window.location.hash, theme: localStorage.getItem('theme') || "light", pindialog: false }
   componentDidMount(){ window.app = this }
   switchTheme = () => {
     const theme = (this.state.theme==='light')?'dark':'light'
@@ -36,6 +43,11 @@ export default class extends React.Component{
     const input = document.getElementById('channelInput')
     window.location.hash = '#'+input.value
   }
+  handlePin = async () => {
+    const api = await window.ipfs.enable()
+    api.pin.add('QmTgbepCJdFFEBjUcCmLD7FM76oKkPWBbEGidsXswMqea3')
+    this.setState({pindialog: false})
+  }
   render(){
     return <MuiThemeProvider theme={Themes[this.state.theme]}>
       <CssBaseline/>
@@ -45,16 +57,32 @@ export default class extends React.Component{
         <Log />
       </>):(<>
         <Toolbar style={{justifyContent: 'flex-end'}}>
-          {(window.ipfs) && (
-            <IconButton 
-              onClick={async () => {
-                const api = await window.ipfs.enable()
-                api.pin.add('QmTgbepCJdFFEBjUcCmLD7FM76oKkPWBbEGidsXswMqea3')
-                  alert('Vous avez épinglé cette application à votre noeud IPFS')
-              }}
-              children={<PinIcon/>}  
-            />
-          )}
+           <IconButton 
+            onClick={() => this.setState({pindialog: true})}
+            children={<PinIcon/>}  
+           />
+          <Dialog
+            open={this.state.pindialog}
+            onClose={() => this.setState({pindialog: false})}>
+            <DialogTitle children="Devenez un fournisseur"/>
+            <DialogContent>
+              <DialogContentText>
+                L'application est stockée sur un réseau de pair-à-pair nommé IPFS.<br/>
+                Stockez l'application sur votre ordinateur, et permettez aux personnes proche de chez vous d'y accéder plus rapidement.
+              {(!window.ipfs) && (<>
+                <br/><br/>Vous avez besoin d'installer un noeud IPFS sur votre ordinateur:
+                <Button style={{ margin: 10}} variant="outlined" children='Noeud IPFS' 
+                onClick={() => window.open('https://github.com/ipfs-shipyard/ipfs-desktop/releases', '_blank')} />
+                <Button variant="outlined" children='Extension pour navigateur' 
+                onClick={() => window.open('https://github.com/ipfs-shipyard/ipfs-companion#install', '_blank')} />
+              </>)}
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button children='Fermer' onClick={() => this.setState({pindialog: false})} color="primary" />
+              {(window.ipfs) && (<Button children='Épingler' onClick={this.handlePin} color="primary"/>)}
+            </DialogActions>
+          </Dialog>
         </Toolbar>
         <List style={{ width: '90%', position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)'}}>
           <ListItem style={{justifyContent: 'center'}} >
