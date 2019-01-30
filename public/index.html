@@ -47,6 +47,13 @@
         if(!['127.0.0.1','localhost'].includes(window.location.hostname))
         fetch(https).then(() => window.location.href = https)
       }
+
+      window.updateTitle = () => {
+        if(window.location.hash) document.title = window.location.hash+" - Gossipr" 
+        else document.title = "Gossipr"
+      }
+
+      window.updateTitle()
     </script>
 	  <script src="https://unpkg.com/ipfs@0.33.1/dist/index.js"></script>
   </body>

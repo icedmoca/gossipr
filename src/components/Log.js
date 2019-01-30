@@ -14,22 +14,86 @@ import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import QuoteIcon from '@material-ui/icons/FormatQuote'
+import CircularProgress from '@material-ui/core/CircularProgress'
 
 import Remark from 'remark'
 import RemarkReact from 'remark-react'
 import RemarkImages from 'remark-images'
 import RemarkBreaks from 'remark-breaks'
 
+import isIPFS from 'is-ipfs'
+import fileType from 'file-type'
+
 import { json, str } from "../index";
 
-const Anchor = ({href, children}) => <a href={href} target='_blank' children={children}/>
-const Image = ({src}) => <img src={src} style={{maxWidth: 90}}/>
+class Anchor extends React.Component{
+  state = { type: 'anchor', blob: null }
+  async componentDidMount() {
+    const {href} = this.props
+    const ipfsPattern = /^https?:\/\/[^/]+\/(ip(f|n)s)\/((\w+).*)/
+    const ipfsMatch = href.match(ipfsPattern)
+    if(ipfsMatch){
+      const hash = ipfsMatch[4]
+      if(isIPFS.cid(hash)){
+        this.setState({ type: 'loading' })
+        const file = await window.node.files.cat(hash)
+        const mime = fileType(file)
+        const type = mime.mime.split('/')[0]
+        if(['audio', 'image', 'video'].includes(type)){
+          const b64 = file.toString("base64");
+          const blob = "data:"+type+"/"+mime.ext+";base64,"+b64;
+          this.setState({ type, blob })
+        }
+      }
+    }
+  }
+  render(){
+    const {href, children} = this.props
+    const {type, blob} = this.state
+    if(type==="loading")
+      return <CircularProgress color='inherit' size={20} />
+    if(type==='audio') 
+      return <audio 
+        controls 
+        style={{width: "100%"}}
+        children={<source src={blob} />}
+      />
+    if(type==='image')
+      return <Image src={blob} />
+    if(type==='video')
+      return <video 
+        controls
+        style={{width: '100%', maxWidth: 500, maxHeight: 500}}
+        children={<source src={blob}/>}
+      />
+    if(children[0].type && children[0].type.name==='Image')
+      return <>{children}</>
+    return <a href={href} target='_blank' children={children} />
+  }
+}
+
+class Image extends React.Component {
+  state = {big: false}
+  render(){
+    const {src} = this.props
+    return <img src={src} 
+      style={{width: '100%', maxWidth: (this.state.big)?500:90}}
+      onClick={() => this.setState({big: !this.state.big})}
+    />
+  }
+}
+
+const Paragraph = ({children}) => <div children={children} style={{marginBlockStart: '1em', marginBlockEnd: '1em'}}/>
+const Blockquote = ({children}) => 
+  <blockquote children={children} 
+    style={{ background: '#8080801f', paddingLeft: 10, marginInlineStart: 0, marginInlineEnd: 0}}
+  />
 
 export default class extends React.Component {
   state = { messages: [], menuAnchor: null, snackbar: null, peer: null, isBlocked: false, quote: null, name: null };
-  componentDidMount() { window.logger = this }
+  componentDidMount() { window.logger = this  }
   clear = () => this.setState({messages: [], snackbar: 'Tous les messages ont été effacés'})
-  log = async (peer, { type, name, data, avatar }) => {
+  log = async (peer, { name, data, avatar }) => {
     let img = null;
     if (avatar) {
       const file = await window.node.files.cat(avatar);
@@ -37,13 +101,7 @@ export default class extends React.Component {
       img = "data:image/png;base64," + b64;
     }
 
-    const obj = { peer, type, name, data, avatar: img, date: new Date() };
-
-    if (type === "audio") {
-      const file = await window.node.files.cat(data);
-      const b64 = file.toString("base64");
-      obj.data = "data:audio/wav;base64," + b64;
-    }
+    const obj = { peer, name, data, avatar: img, date: new Date() };
 
     const messages = this.state.messages;
     messages.push(obj);
@@ -66,19 +124,21 @@ export default class extends React.Component {
     localStorage.setItem("blocked", str(blocked));
   };
   handleQuote = () => {
-    const head = "> ~"+this.state.name+":\n"
-    const quote = "> "+this.state.quote.replace(new RegExp('\n', 'g'), '\n> ')+"\n\n"
-    window.form.getInput().value += head+quote
-    window.form.getInput().style.height = "190px"
-    window.form.setState({writing: true})
-    this.setState({ menuAnchor: null })
+    const foot = "> ~"+this.state.name+"\n\n"
+    const quote = "> "+this.state.quote.replace(new RegExp('\n', 'g'), '\n> ')+"\n"
+    window.form.setState({ writing: true, record: null })
+    setTimeout(() => {
+      window.form.getInput().value += quote + foot
+      window.form.getInput().style.height = "190px"
+      this.setState({ menuAnchor: null })
+    }, 100)
   }
   render() {
     return (
       <>
         <List style={{ maxWidth: "1000px", margin: "auto" }}>
           {[...this.state.messages].reverse().map((v) => (
-            <ListItem key={v.date.getTime()} style={{alignItems: 'flex-end'}}>
+            <ListItem key={-v.date.getTime()} style={{alignItems: 'flex-end'}}>
               <Avatar
                 src={v.avatar}
                 children={<AvatarIcon />}
@@ -89,17 +149,11 @@ export default class extends React.Component {
               <ListItemText
                 primaryTypographyProps={{style:{margin: '-1em 0'}}}
                 primary={
-                  (v.type === "audio") ? (
-                    <audio style={{width: "100%", margin: '1em 0' }} controls>
-                      <source src={v.data} />
-                    </audio>
-                  ) : (
-                    Remark()
-                    .use(RemarkReact, {remarkReactComponents: {a: Anchor, img: Image}})
+                  Remark()
+                    .use(RemarkReact, { remarkReactComponents: { a: Anchor, img: Image, p: Paragraph, blockquote: Blockquote } })
                     .use(RemarkBreaks)
                     .use(RemarkImages)
                     .processSync(v.data).contents
-                  )
                 }
                 secondary={
                   <>

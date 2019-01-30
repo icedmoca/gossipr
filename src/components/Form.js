@@ -9,11 +9,11 @@ import IconButton from '@material-ui/core/IconButton'
 import RecordIcon from '@material-ui/icons/Mic'
 import RecordNoneIcon from '@material-ui/icons/MicNone'
 import CloseIcon from '@material-ui/icons/Clear'
-import Recorder from 'recorder-js';
-import MultilineIcon from '@material-ui/icons/SubdirectoryArrowLeft'
-import SinglelineIcon from '@material-ui/icons/ArrowForward'
+import PhotoIcon from '@material-ui/icons/PhotoCamera'
 
-import { node, str, json, upload, dataURL } from '../index'
+import Recorder from 'recorder-js';
+
+import { str, upload, dataURL } from '../index'
 
 const msg = data => ({ 
   type: "message", 
@@ -23,15 +23,15 @@ const msg = data => ({
 })
 
 const audio = data => ({...msg(data), type: 'audio'})
-const buffer = str => node.types.Buffer.from(str);
+const buffer = str => window.node.types.Buffer.from(str);
 const send = data => publish(str(data));
 const publish = str => {
   window.node.pubsub.publish("gossipr"+window.location.hash, buffer(str));
 };
 
 export default class extends React.Component {
-  state = { ready: false, multiline: true, recording: false, record: null, dataURL: null, writing: false }
-  componentDidMount() { window.form = this; }
+  state = { ready: window.node && window.node.isOnline(), multiline: true, recording: false, record: null, dataURL: null, writing: false }
+  componentDidMount() {  window.form = this; }
   handleRecord = () => {
     if(!this.state.recording){
       const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -53,28 +53,38 @@ export default class extends React.Component {
       })
     }
   }
+  handleImageUpload = (ev) => {
+    const file = ev.target.files[0]
+    ev.target.value = ""
+    upload(file, (hash) => {
+      send(msg('https://ipfs.io/ipfs/'+hash))
+    })
+  }
   getInput = () => document.getElementById('writingInput')
   setValue = () => this.getInput().value = this.state.value
   clearValue = () => {
-    this.getInput().value = ""
-    this.setState({multiline: false})
-    setTimeout(() => {
-      this.setState({multiline: true})
-      this.getInput().focus()
-    }, 100)
+    if(this.getInput()){
+      this.getInput().value = ""
+      this.setState({ multiline: false })
+      setTimeout(() => {
+        this.setState({ multiline: true })
+        this.getInput().focus()
+      }, 100)
+    }
   }
   handleSend = () => {
     if (!this.state.record){
-      send(msg(this.getInput().value))
-      this.handleClearWriting()
+      const value = this.getInput().value
+      if(value) send(msg(value))
     }
     else upload(this.state.record, (hash) => {
-      send(audio(hash))
+      send(msg('https://ipfs.io/ipfs/'+hash))
     }) 
+    this.handleClearWriting()
   }
   handleClearWriting = () => {
     this.clearValue()
-    this.setState({writing: false})
+    this.setState({writing: false, record: null})
   }
   render() {
     return <AppBar color="default" position='sticky'>
@@ -82,9 +92,21 @@ export default class extends React.Component {
         <IconButton 
           color={(this.state.recording)?'secondary':'default'}
           onClick={this.handleRecord}
-          style={{width: 36, height: 36, padding: 0, marginRight: 10}}>
-          {(this.state.recording)?(<RecordIcon/>):(<RecordNoneIcon/>)}
-        </IconButton>
+          style={{width: 36, height: 36, padding: 0, marginRight: 5}}
+          children={(this.state.recording)?(<RecordIcon/>):(<RecordNoneIcon/>)}
+        />
+        <input 
+          id='imageUploader' 
+          type='file' 
+          accept="image/*,video/*" 
+          style={{display: 'none'}}
+          onChange={this.handleImageUpload}
+        />
+        <IconButton
+          onClick={() => document.getElementById('imageUploader').click()}
+          style={{width: 36, height: 36, padding: 0, marginRight: 10}}
+          children={<PhotoIcon/>}
+        />
         {(this.state.record)?(<>
           <CloseIcon onClick={() => this.setState({record: null})}/>
           <audio className='grow' controls>
