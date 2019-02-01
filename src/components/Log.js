@@ -7,14 +7,12 @@ import Avatar from "@material-ui/core/Avatar";
 import AvatarIcon from "@material-ui/icons/Person";
 import date from "date-and-time";
 import BlockIcon from "@material-ui/icons/Block";
-import IconButton from "@material-ui/core/IconButton";
-import CloseIcon from "@material-ui/icons/Clear";
-import Snackbar from "@material-ui/core/Snackbar";
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import QuoteIcon from '@material-ui/icons/FormatQuote'
 import CircularProgress from '@material-ui/core/CircularProgress'
+import SaveIcon from '@material-ui/icons/Save'
 
 import Remark from 'remark'
 import RemarkReact from 'remark-react'
@@ -83,16 +81,41 @@ class Image extends React.Component {
   }
 }
 
-const Paragraph = ({children}) => <div children={children} style={{marginBlockStart: '1em', marginBlockEnd: '1em'}}/>
+const Paragraph = ({children}) => <div children={children} style={{marginBlockStart: '1em'}}/>
 const Blockquote = ({children}) => 
   <blockquote children={children} 
     style={{ background: '#8080801f', paddingLeft: 10, marginInlineStart: 0, marginInlineEnd: 0}}
   />
 
+function union(first, second, compare) {
+  var union = first.concat(second);
+  for (var i = 0; i < union.length; i++) {
+    for (var j = i + 1; j < union.length; j++) {
+      if (compare(union[i], union[j])) {
+        union.splice(j, 1);
+        j--;
+      }
+    }
+  }
+  return union;
+}
+
 export default class extends React.Component {
-  state = { messages: [], menuAnchor: null, snackbar: null, peer: null, isBlocked: false, quote: null, name: null };
+  messagesKey = () => 'messages' + window.location.hash
+  pinnedKey = () => 'pinned' + window.location.hash
+  getPinned = () => json(localStorage.getItem(this.pinnedKey())) || []
+  getTemp = () =>  json(localStorage.getItem(this.messagesKey())) || []
+  getMessages = () => {
+    const messages = union(this.getTemp(), this.getPinned(), (a, b) => a.date === b.date)
+    return messages.sort((a,b) => (a.date > b.date)?1:-1)
+  }
+  state = { messages: this.getMessages(), menuAnchor: null, message: null };
   componentDidMount() { window.logger = this  }
-  clear = () => this.setState({messages: [], snackbar: 'Tous les messages ont été effacés'})
+  clear = () => {
+    localStorage.setItem('messages'+window.location.hash, str([]))
+    this.setState({messages: this.getMessages()})
+    window.app.setState({snackbar: 'Tous les messages ont été effacés'})
+  }
   log = async (peer, { name, data, avatar }) => {
     let img = null;
     if (avatar) {
@@ -101,11 +124,12 @@ export default class extends React.Component {
       img = "data:image/png;base64," + b64;
     }
 
-    const obj = { peer, name, data, avatar: img, date: new Date() };
+    const obj = { peer, name, data, avatar: img, date: (new Date()).getTime() };
 
-    const messages = this.state.messages;
+    const messages = [...this.getTemp()];
     messages.push(obj);
-    this.setState({ messages });
+    localStorage.setItem('messages'+window.location.hash, str(messages))
+    this.setState({ messages: this.getMessages() });
   }
   isBlocked = (peer) => {
     const blocked = json(localStorage.getItem("blocked")) || [];
@@ -113,53 +137,69 @@ export default class extends React.Component {
   }
   handleBlock = () => {
     let blocked = json(localStorage.getItem("blocked")) || [];
-    if(!this.state.isBlocked){
-      blocked.push(this.state.peer);
-      this.setState({menuAnchor: null, snackbar: "Cet utilisateur a été bloqué"});
+    const peer = this.state.message.peer
+    if(!blocked.includes(peer)){
+      blocked.push(peer);
+      this.setState({menuAnchor: null});
+      window.app.setState({snackbar: "Cet utilisateur a été bloqué"})
     }
     else {
-      blocked = blocked.filter(it => it !== this.state.peer)
-      this.setState({ menuAnchor: null, snackbar: "Cet utilisateur a été débloqué" });
+      blocked = blocked.filter(it => it !== peer)
+      this.setState({ menuAnchor: null});
+      window.app.setState({snackbar: "Cet utilisateur a été débloqué"})
     }
     localStorage.setItem("blocked", str(blocked));
   };
   handleQuote = () => {
-    const foot = "> ~"+this.state.name+"\n\n"
-    const quote = "> "+this.state.quote.replace(new RegExp('\n', 'g'), '\n> ')+"\n"
-    window.form.setState({ writing: true, record: null })
-    setTimeout(() => {
-      window.form.getInput().value += quote + foot
-      window.form.getInput().style.height = "190px"
-      this.setState({ menuAnchor: null })
-    }, 100)
+    const foot = "> ~"+this.state.message.name+"\n\n"
+    const quote = "> "+this.state.message.data.replace(new RegExp('\n', 'g'), '\n> ')+"\n"
+    const value = window.form.state.value + quote + foot
+    window.form.setState({ value, record: null })
+    this.setState({ menuAnchor: null })
+  }
+  isPinned = (msg) => str(this.getPinned()).includes(str(msg))
+  handlePin = () => {
+    let pinned = this.getPinned()
+    const msg = this.state.message
+    if(!str(pinned).includes(str(msg))){
+      pinned.push(msg);
+      this.setState({menuAnchor: null});
+      window.app.setState({snackbar: "Ce message a été épinglé"})
+    }
+    else {
+      pinned = pinned.filter(it => str(it) !== str(msg))
+      this.setState({ menuAnchor: null });
+      window.app.setState({snackbar: "Ce message a été désépinglé"})
+    }
+    localStorage.setItem(this.pinnedKey(), str(pinned));
+    this.setState({ messages: this.getMessages() });
   }
   render() {
-    return (
-      <>
-        <List style={{ maxWidth: "1000px", margin: "auto" }}>
-          {[...this.state.messages].reverse().map((v) => (
-            <ListItem key={-v.date.getTime()} style={{alignItems: 'flex-end'}}>
+    return (<>
+        <List style={{ maxWidth: "1000px", margin: "auto", marginBottom: 60 }}>
+          {[...this.state.messages].reverse().map((msg) => (
+            <ListItem key={-msg.date} style={{alignItems: 'flex-end', background: (this.isPinned(msg))?'#8080801f':null}}>
               <Avatar
-                src={v.avatar}
+                src={msg.avatar}
                 children={<AvatarIcon />}
                 onClick={ev => 
-                  this.setState({ menuAnchor: ev.target, peer: v.peer, isBlocked: this.isBlocked(v.peer), quote: v.data, name: v.name })
+                  this.setState({ menuAnchor: ev.target, message: msg })
                 }
               />
               <ListItemText
-                primaryTypographyProps={{style:{margin: '-1em 0'}}}
+                primaryTypographyProps={{style:{marginTop: '-1em'}}}
                 primary={
                   Remark()
                     .use(RemarkReact, { remarkReactComponents: { a: Anchor, img: Image, p: Paragraph, blockquote: Blockquote } })
                     .use(RemarkBreaks)
                     .use(RemarkImages)
-                    .processSync(v.data).contents
+                    .processSync(msg.data).contents
                 }
                 secondary={
                   <>
-                    <span>{"~" + v.name}</span>
+                    <span>{"~" + msg.name}</span>
                     <span style={{ float: "right" }}>
-                      {date.format(v.date, "HH:mm:ss")}
+                      {date.format(new Date(msg.date), "HH:mm:ss")}
                     </span>
                   </>
                 }
@@ -168,6 +208,7 @@ export default class extends React.Component {
           ))}
         </List>
         <Menu
+          disableAutoFocusItem
           anchorEl={this.state.menuAnchor}
           open={Boolean(this.state.menuAnchor)}
           onClose={() => this.setState({ menuAnchor: null })}
@@ -176,29 +217,17 @@ export default class extends React.Component {
             <ListItemIcon children={<QuoteIcon/>} />
             <ListItemText inset primary="Citer" />
           </MenuItem>
-          {(this.state.peer !== window.id) && (
+          <MenuItem onClick={this.handlePin}>
+            <ListItemIcon children={<SaveIcon/>} />
+            <ListItemText inset primary={(this.isPinned(this.state.message))?'Désépingler':"Épingler"} />
+          </MenuItem>
+          {(this.state.message && (this.state.message.peer !== window.id)) && (
             <MenuItem onClick={this.handleBlock}>
               <ListItemIcon children={<BlockIcon />} />
-              <ListItemText inset primary={(this.state.isBlocked)?"Débloquer":"Bloquer"} />
+              <ListItemText inset primary={(this.isBlocked(this.state.message.peer))?"Débloquer":"Bloquer"} />
             </MenuItem>
           )}
         </Menu>
-        <Snackbar
-          color="inherit"
-          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-          open={Boolean(this.state.snackbar)}
-          autoHideDuration={6000}
-          onClose={() => this.setState({ snackbar: null })}
-          message={this.state.snackbar}
-          action={[
-            <IconButton
-              key="close"
-              color="inherit"
-              onClick={() => this.setState({ snackbar: null })}
-              children={<CloseIcon />}
-            />
-          ]}
-        />
       </>
     );
   }

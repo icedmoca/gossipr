@@ -1,82 +1,69 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import * as serviceWorker from './serviceWorker';
+import React from "react";
+import ReactDOM from "react-dom";
+import "./index.css";
+import App from "./App";
+import * as serviceWorker from "./serviceWorker";
 
-window.onhashchange = () => {
-  if(window.app) window.app.setState({hash: window.location.hash})
-  localStorage.setItem('hash', window.location.hash)
-  window.updateTitle()
-  makeNode()
-}
-
-if(window.location.hash){
-  localStorage.setItem('hash', window.location.hash)
-} else {
-  const hash = localStorage.getItem('hash')
-  if(hash) window.location.hash = hash
-}
+import makeNode from './Node'
 
 export const json = str => JSON.parse(str);
 export const str = json => JSON.stringify(json);
 
-const makeNode = () => {
-  if(window.node) window.node.shutdown()
-  if(window.form) window.form.setState({ready: false})
-  if(window.logger) window.logger.setState({messages: []})
-
-  const node = window.node = new window.Ipfs({
-    EXPERIMENTAL: { pubsub: true },
-    config: {
-      Addresses: {
-        Swarm: [
-          "/dns4/ws-star.discovery.libp2p.io/tcp/443/wss/p2p-websocket-star"
-        ]
-      }
-    }
-  });
-
-  node.on("ready", async () => {
-    window.id = (await node.id()).id;
-    if(window.form) window.form.setState({ready: true})
-    
-    await node.pubsub.subscribe("gossipr" + window.location.hash, packet => {
-      const msg = json(packet.data.toString());
-      const blocked = json(localStorage.getItem('blocked')) || []
-      if (msg.type === 'message')
-        if (msg.name && msg.data)
-          if (!blocked.includes(packet.from))
-            if (window.logger) window.logger.log(packet.from, msg);
-    });
-
-    if (window.peers) clearInterval(window.peers)
-    window.peers = setInterval(async () => {
-      const peers = (await node.pubsub.peers('gossipr' + window.location.hash)).length
-      window.appBar.setState({ peers })
-    }, 3000);
-  });
-}
-
 export const dataURL = (blob, callback) => {
-    var reader = new FileReader();
-    reader.onload = () => callback(reader.result);
-    reader.readAsDataURL(blob);
+  var reader = new FileReader();
+  reader.onload = () => callback(reader.result);
+  reader.readAsDataURL(blob);
 };
 
 export const upload = (blob, callback) => {
-  const reader = new FileReader()
+  const reader = new FileReader();
   reader.onloadend = async () => {
-    const buffer = window.node.types.Buffer.from(reader.result)
-    const res = await window.node.files.add(buffer)
-    callback(res[0].hash)
+    const buffer = window.node.types.Buffer.from(reader.result);
+    const res = await window.node.files.add(buffer);
+    callback(res[0].hash);
+  };
+  reader.readAsArrayBuffer(blob);
+};
+
+const getStorageHash = () => localStorage.getItem("hash") || "";
+
+const saveHash = () => {
+  const hash = window.location.hash
+  localStorage.setItem("hash", hash);
+  if (hash) {
+    const hashes = json(localStorage.getItem("hashes")) || [];
+    if (!hashes.includes(hash)) hashes.unshift(hash);
+    localStorage.setItem("hashes", str(hashes));
   }
-  reader.readAsArrayBuffer(blob)
-}
+};
 
-ReactDOM.render(<App />, document.getElementById('root'));
+window.onhashchange = () => {
+  const hash = window.location.hash
+  const last = getStorageHash()
+  window.updateTitle();
+  saveHash();
+  if(hash) {
+    makeNode();
+    const log = window.logger
+    if(log) log.setState({ messages: log.getMessages() });
+  }
+  if (window.app) window.app.setState({ hash, lastHash: last.substr(1) });
+};
 
-if(window.location.hash) makeNode()
+(() => {
+  const hash = window.location.hash
+  const last = getStorageHash()
+  if(hash !== last){
+    if(hash === ''){
+      window.location.hash = last;
+      return;
+    }
+    saveHash();
+  }
+  makeNode();
+})()
+
+ReactDOM.render(<App />, document.getElementById("root"));
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
