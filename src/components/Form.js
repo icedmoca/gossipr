@@ -4,14 +4,12 @@ import AppBar from '@material-ui/core/AppBar'
 import Toolbar from '@material-ui/core/Toolbar'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import SendIcon from '@material-ui/icons/Send'
-import TextField from '@material-ui/core/TextField'
 import InputBase from '@material-ui/core/InputBase'
 import IconButton from '@material-ui/core/IconButton'
 import RecordIcon from '@material-ui/icons/Mic'
 import RecordNoneIcon from '@material-ui/icons/MicNone'
 import CloseIcon from '@material-ui/icons/Clear'
 import FileIcon from '@material-ui/icons/Folder'
-import PhotoIcon from '@material-ui/icons/PhotoCamera'
 
 import Recorder from 'recorder-js';
 
@@ -21,10 +19,10 @@ const msg = data => ({
   type: "message", 
   name: localStorage.getItem('name') || 'Gossipr', 
   data, 
+  date: new Date().getTime(),
   avatar: localStorage.getItem('avatar-hash') 
 })
 
-const audio = data => ({...msg(data), type: 'audio'})
 const buffer = str => window.node.types.Buffer.from(str);
 const send = data => publish(str(data));
 const publish = str => {
@@ -57,7 +55,7 @@ export default class extends React.Component {
       })
     }
   }
-  handleFileUploadClick = () => document.getElementById('fileUploader').click()
+  handleFileUploadClick = () => this.fileUploader.click()
   handleFileUpload = (ev) => {
     const file = ev.target.files[0]
     ev.target.value = ""

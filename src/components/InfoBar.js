@@ -17,8 +17,8 @@ import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
-import Snackbar from '@material-ui/core/Snackbar'
 import ShareIcon from '@material-ui/icons/Share'
+import SaveIcon from '@material-ui/icons/Save'
 
 import { upload, dataURL } from '../index'
 
@@ -52,6 +52,9 @@ export default class extends React.Component{
     await navigator.clipboard.writeText(href)
     window.app.setState({snackbar: "L'adresse a été copiée"})
   }
+  handleSwitchTheme = () => window.app.switchTheme()
+  handleClearAll = () => window.logger.clearAll()
+  handleTogglePinnedAtTop = () => window.logger.togglePinnedAtTop()
   render(){
     return <AppBar 
       position="sticky">
@@ -95,11 +98,15 @@ export default class extends React.Component{
             <ListItemIcon children={<ShareIcon />} />
             <ListItemText children='Partager ce canal' />
           </MenuItem>
-          <MenuItem onClick={this.props.switchTheme}>
+          <MenuItem onClick={this.handleSwitchTheme}>
             <ListItemIcon children={<ThemeIcon/>} />
             <ListItemText children='Changer de thème' />
           </MenuItem>
-          <MenuItem onClick={() => window.logger.clear()}>
+          <MenuItem onClick={this.handleTogglePinnedAtTop}>
+            <ListItemIcon children={<SaveIcon/>}/>
+            <ListItemText children='Épinglés en haut'/>
+          </MenuItem>
+          <MenuItem onClick={this.handleClearAll}>
             <ListItemIcon children={<ClearAllIcon />} />
             <ListItemText children='Tout effacer' />
           </MenuItem>
