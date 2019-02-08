@@ -20,33 +20,24 @@ import ListItemText from "@material-ui/core/ListItemText";
 import ShareIcon from '@material-ui/icons/Share'
 import SaveIcon from '@material-ui/icons/Save'
 
-import { upload, dataURL } from '../index'
+import * as Messenger from '/src/Messenger'
+import Data from '/src/Data'
 
 export default class extends React.Component{
-  state = {peers: 0, avatar: localStorage.getItem('avatar'), menuAnchor: null }
+  state = {peers: 0, avatar: null, menuAnchor: null }
   componentDidMount(){ window.appBar = this } 
-  handleAvatarUpload = (ev) => {
+  
+  handleAvatarUpload = async (ev) => {
     const file = ev.target.files[0]
     ev.target.value = ""
-    
-    dataURL(file, (avatar) => {
-      this.setState({avatar})
-      localStorage.setItem('avatar', avatar)
-    })
-    
-    upload(file, (hash) => {
-      localStorage.setItem('avatar-hash', hash)
-    })
+    Messenger.sendAvatar(file)
   }
+  handleAvatarDelete = () => Data.avatar = ''
   handleAvatarClick = () => {
     if(this.state.avatar) this.handleAvatarDelete()
     else document.getElementById('avatarUploader').click()
   }
-  handleAvatarDelete = () => {
-    this.setState({avatar: null})
-    localStorage.removeItem('avatar')
-    localStorage.removeItem('avatar-hash')
-  }
+
   handleShare = async () => {
     const href = window.location.href
     await navigator.clipboard.writeText(href)
@@ -55,6 +46,7 @@ export default class extends React.Component{
   handleSwitchTheme = () => window.app.switchTheme()
   handleClearAll = () => window.logger.clearAll()
   handleTogglePinnedAtTop = () => window.logger.togglePinnedAtTop()
+
   render(){
     return <AppBar 
       position="sticky">
@@ -68,7 +60,7 @@ export default class extends React.Component{
         />
         <Avatar
           onClick={this.handleAvatarClick}
-          src={this.state.avatar}
+          src={this.state.avatar && '/ipfs/'+this.state.avatar}
           style={{width: 36, height: 36, marginRight: 10}}
           children={<AvatarIcon/>}
         />

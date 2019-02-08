@@ -9,10 +9,9 @@
     "@material-ui/core": "latest",
     "@material-ui/icons": "3.0.2",
     "date-and-time": "0.6.3",
-    "file-type": "10.7.1",
-    "react": "16.5.2",
-    "react-dom": "16.5.2",
-    "react-scripts": "2.0.3",
+    "react": "16.8.1",
+    "react-dom": "16.8.1",
+    "react-scripts": "2.1.3",
     "recorder-js": "1.0.7",
     "remark": "10.0.1",
     "remark-breaks": "1.0.2",
@@ -26,11 +25,6 @@
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
   },
-  "browserslist": [
-    ">0.2%",
-    "not dead",
-    "not ie <= 11",
-    "not op_mini all"
-  ],
+  "browserslist": [">0.2%", "not dead", "not ie <= 11", "not op_mini all"],
   "description": ""
 }

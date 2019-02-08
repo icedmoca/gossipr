@@ -13,69 +13,52 @@ import FileIcon from '@material-ui/icons/Folder'
 
 import Recorder from 'recorder-js';
 
-import { str, upload, dataURL } from '../index'
+import { dataURL } from '/src/index'
 
-const msg = data => ({ 
-  type: "message", 
-  name: localStorage.getItem('name') || 'Gossipr', 
-  data, 
-  date: new Date().getTime(),
-  avatar: localStorage.getItem('avatar-hash') 
-})
-
-const buffer = str => window.node.types.Buffer.from(str);
-const send = data => publish(str(data));
-const publish = str => {
-  window.node.pubsub.publish("gossipr"+window.location.hash, buffer(str));
-};
+import * as Messenger from '/src/Messenger'
 
 export default class extends React.Component {
-  state = { ready: window.node && window.node.isOnline(), recording: false, record: null, dataURL: null, value: '' }
+  state = { ready: false, recording: false, record: null, dataURL: null, value: '' }
   componentDidMount() {  window.form = this; }
-  fileUploaderRef = (it) => this.fileUploader = it
-  handleClearRecord = () => this.setState({ record: null })
-  handleRecord = () => {
+
+  handleInputChange = ev => this.setState({ value: ev.target.value })
+  clearValue = () => this.setState({ value: '', record: null })
+
+  handleRecord = async () => {
     if(!this.state.recording){
       const audioContext = new (window.AudioContext || window.webkitAudioContext)();
       window.recorder = new Recorder(audioContext);
-      navigator.mediaDevices.getUserMedia({ audio: true })
-        .then(stream => {
-          window.mediaStream = stream
-          window.recorder.init(stream)
-          window.recorder.start().then(() => {
-            this.setState({ recording: true, record: null })
-          })
-        })
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      window.mediaStream = stream
+      window.recorder.init(stream)
+      await window.recorder.start()
+      this.setState({ recording: true, record: null })
     } else {
-      window.recorder.stop().then(({blob}) => {
-        window.mediaStream.getTracks()[0].stop();
-        dataURL(blob, (dataURL) => {
-          this.setState({recording: false, record: blob, dataURL})
-        })
-      })
+      const {blob} = await window.recorder.stop()
+      window.mediaStream.getTracks()[0].stop();
+      const uri = await dataURL(blob)
+      this.setState({ recording: false, record: blob, dataURL: uri })
     }
   }
+
+  fileUploaderRef = (it) => this.fileUploader = it
   handleFileUploadClick = () => this.fileUploader.click()
   handleFileUpload = (ev) => {
     const file = ev.target.files[0]
     ev.target.value = ""
-    upload(file, (hash) => {
-      send(msg('https://ipfs.io/ipfs/'+hash))
-    })
+    Messenger.sendUpload(file)
   }
-  clearValue = () => this.setState({value: '', record: null})
+
   handleSend = () => {
     if(this.input) this.input.focus()
-    if (!this.state.record){
+    if(this.state.record) Messenger.sendUpload(this.state.record) 
+    else{
       const value = this.state.value
-      if(value) send(msg(value))
+      if(value) Messenger.sendPublish(value)
     }
-    else upload(this.state.record, (hash) => {
-      send(msg('https://ipfs.io/ipfs/'+hash))
-    }) 
     this.clearValue()
   }
-  handleInputChange = ev => this.setState({ value: ev.target.value })
+
   render() {
     return <AppBar 
     color="default"
@@ -100,7 +83,7 @@ export default class extends React.Component {
           children={<FileIcon/>}
         />
         {(this.state.record)?(<>
-          <CloseIcon onClick={this.handleClearRecord}/>
+          <CloseIcon onClick={this.clearValue}/>
           <audio className='grow' controls>
             <source src={this.state.dataURL}/>
           </audio>
@@ -133,6 +116,6 @@ export default class extends React.Component {
             size={20}/>
         )}
       </Toolbar>
-      </AppBar>
+    </AppBar>
   }
 }

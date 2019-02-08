@@ -16,9 +16,11 @@ import IconButton from '@material-ui/core/IconButton'
 import CloseIcon from "@material-ui/icons/Clear";
 import Snackbar from "@material-ui/core/Snackbar";
 
+import Data from './Data'
+
 export default class extends React.Component{
   state = { 
-    theme: localStorage.getItem('theme') || "light", 
+    theme: Data.theme, 
     snackbar: null
   }
   snackbar = (message) => this.setState({ snackbar: message })

@@ -1,16 +1,16 @@
 import {createMuiTheme} from "@material-ui/core";
-import red from "@material-ui/core/colors/red";
+import red from "@material-ui/core/colors/red"; 
 
-export const LightTheme =  createMuiTheme({
+export default {
+  light: createMuiTheme({
     typography: { useNextVariants: true },
     palette: {
         primary: { main: '#795548' },
         secondary: { main: '#795548' },
         error: red
     }
-});
-
-export const DarkTheme = createMuiTheme({
+  }),
+  dark: createMuiTheme({
     typography: { useNextVariants: true },
     palette: {
       primary: { main: '#291d16' },
@@ -22,9 +22,5 @@ export const DarkTheme = createMuiTheme({
           default: "#171717"
         },
     }
-});
-
-export default {
-  light: LightTheme,
-  dark: DarkTheme
+  })
 };

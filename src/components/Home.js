@@ -23,8 +23,6 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button'
 import AppBar from '@material-ui/core/AppBar'
 
-import {getStorageHashes} from '../index'
-
 export default class extends React.Component {
   componentDidMount(){ window.home = this }
   handleJoin = () => window.location.hash = '#'+this.input.value
@@ -59,7 +57,7 @@ export default class extends React.Component {
               id="channelInput"
               style={{flex: 1, maxWidth: 300}}
               label="Rejoindre le canal"
-              defaultValue={(getStorageHashes()[0] || '#main').substr(1)}
+              defaultValue={(window.data.channels[0] || '#main').substr(1)}
               inputRef={(it) => this.input = it}
               onKeyPress={this.handleKeyPress}
               helperText="Vous pouvez aussi en créer un nouveau"

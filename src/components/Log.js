@@ -21,7 +21,7 @@ import RemarkReact from 'remark-react'
 import RemarkImages from 'remark-images'
 import RemarkBreaks from 'remark-breaks'
 
-import { json, str, getMessages, setMessages } from "../index";
+import Data from '/src/Data'
 
 const Paragraph = ({children}) => <div children={children} style={{marginBlockStart: '1em'}}/>
 const Blockquote = ({children}) => 
@@ -32,44 +32,48 @@ const Blockquote = ({children}) =>
 export default class extends React.Component {
   state = { menuAnchor: null, clickedMessage: null, pinnedAtTop: false };
   componentDidMount() { window.logger = this }
+
   togglePinnedAtTop = () => this.setState({pinnedAtTop: !this.state.pinnedAtTop})
   clearAll = () => {
-    setMessages(null, this.getPinned())
+    window.data.messages = this.getPinned()
     window.app.snackbar('Tous les messages ont été effacés')
   }
-  isBlocked = (peer) => {
-    const blocked = json(localStorage.getItem("blocked")) || [];
-    return blocked.includes(peer)
-  }
+
+  isBlocked = (peer) => Data.blocked.includes(peer)
   handleBlock = () => {
-    let blocked = json(localStorage.getItem("blocked")) || [];
+    let blocked = Data.blocked;
     const peer = this.state.clickedMessage.peer
     
     if(blocked.includes(peer))
       blocked = blocked.filter(it => it !== peer)
     else blocked.push(peer);
 
-    localStorage.setItem("blocked", str(blocked));
+    Data.blocked = blocked
     this.state.menuAnchor = null
     window.app.snackbar('Cet utilisateur a été '+(blocked.includes(peer)?'bloqué':'débloqué'))
+  }
 
-  };
   handleMessageClick = (ev, msg) => this.setState({ menuAnchor: ev.target, clickedMessage: msg })
   handleQuote = () => {
-    const foot = "> ~"+this.state.clickedMessage.name+"\n\n"
+    const foot = "> ~"+this.state.clickedMessage.meta.name+"\n\n"
     const quote = "> "+this.state.clickedMessage.data.replace(new RegExp('\n', 'g'), '\n> ')+"\n"
     const value = window.form.state.value + quote + foot
     window.form.setState({ value, record: null })
     this.setState({ menuAnchor: null })
   }
+
+  getPinned = () => window.data.messages.filter(it => it.pinned)
+  getNotPinned = () => window.data.messages.filter(it => !it.pinned)
   handlePin = () => {
     const msg = this.state.clickedMessage
     msg.pinned = !msg.pinned
     this.setState({menuAnchor: null});
   }
-  getPinned = () => getMessages().filter(it => it.pinned)
-  getNotPinned = () => getMessages().filter(it => !it.pinned)
-  renderMessages = (messages) => [...messages].reverse().map((msg) => <Message msg={msg} key={-(msg.date || new Date().getTime())} />)
+
+  renderMessages = (messages) => [...messages].reverse().map((msg) => {
+    return <Message msg={msg} key={-(msg.meta.time || new Date().getTime())} />
+  })
+
   render() {
     return (<>
         <List style={{ maxWidth: "1000px", margin: "auto", marginBottom: 60 }}>
@@ -77,7 +81,7 @@ export default class extends React.Component {
             {this.renderMessages(this.getPinned())}
             {this.renderMessages(this.getNotPinned())}
           </>):(<>
-            {this.renderMessages(getMessages())}
+            {this.renderMessages(window.data.messages)}
           </>)}
         </List>
         <Menu
@@ -107,9 +111,9 @@ export default class extends React.Component {
 }
 
 const Message = ({msg}) => <ListItem  
-  style={{alignItems: 'flex-end', background: (msg.pinned)?'#8080801f':null}}>
+  style={{alignItems: 'flex-end', background: (msg.meta.pinned)?'#8080801f':null}}>
   <Avatar
-    src={window.data.avatars.get(msg.avatar)}
+    src={msg.meta.avatar && '/ipfs/' + msg.meta.avatar}
     children={<AvatarIcon />}
     onClick={(ev) => window.logger.handleMessageClick(ev, msg)}
   />
@@ -123,9 +127,9 @@ const Message = ({msg}) => <ListItem
         .processSync(msg.data).contents
     }
     secondary={<>
-      <span>{"~" + msg.name}</span>
+      <span>{"~" + msg.meta.name}</span>
       <span style={{ float: "right" }}>
-        {date.format(new Date(msg.date), "HH:mm:ss")}
+        {date.format(new Date(msg.meta.time), "HH:mm:ss")}
       </span>
     </>}
   />
