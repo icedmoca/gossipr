@@ -18,7 +18,7 @@ import { dataURL } from '/src/index'
 import * as Messenger from '/src/Messenger'
 
 export default class extends React.Component {
-  state = { ready: false, recording: false, record: null, dataURL: null, value: '' }
+  state = { recording: false, record: null, dataURL: null, value: '' }
   componentDidMount() {  window.form = this; }
 
   handleInputChange = ev => this.setState({ value: ev.target.value })
@@ -103,18 +103,11 @@ export default class extends React.Component {
             <CloseIcon onClick={this.clearValue}/>
           )}
         </>)}
-        {(this.state.ready) ? (
-          <IconButton 
-            style={{ width: 36, height: 36, padding: 0, marginLeft: 10 }}
-            onClick={this.handleSend}>
-            <SendIcon />
-          </IconButton>
-        ) : (
-          <CircularProgress 
-            style={{marginLeft: 10, marginRight: 10}}
-            color='inherit' 
-            size={20}/>
-        )}
+        <IconButton 
+          style={{ width: 36, height: 36, padding: 0, marginLeft: 10 }}
+          onClick={this.handleSend}>
+          <SendIcon />
+        </IconButton>
       </Toolbar>
     </AppBar>
   }

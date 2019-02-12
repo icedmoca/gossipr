@@ -30,27 +30,22 @@ const Blockquote = ({children}) =>
   />
 
 export default class extends React.Component {
-  state = { menuAnchor: null, clickedMessage: null, pinnedAtTop: false };
+  state = { menuAnchor: null, clickedMessage: null, pinnedAtTop: Data.pinnedAtTop };
   componentDidMount() { window.logger = this }
 
-  togglePinnedAtTop = () => this.setState({pinnedAtTop: !this.state.pinnedAtTop})
+  togglePinnedAtTop = () => Data.pinnedAtTop = !Data.pinnedAtTop
   clearAll = () => {
     window.data.messages = this.getPinned()
     window.app.snackbar('Tous les messages ont été effacés')
   }
 
-  isBlocked = (peer) => Data.blocked.includes(peer)
   handleBlock = () => {
-    let blocked = Data.blocked;
     const peer = this.state.clickedMessage.peer
-    
-    if(blocked.includes(peer))
-      blocked = blocked.filter(it => it !== peer)
-    else blocked.push(peer);
-
+    let blocked = Data.blocked;
+    blocked.push(peer);
     Data.blocked = blocked
     this.state.menuAnchor = null
-    window.app.snackbar('Cet utilisateur a été '+(blocked.includes(peer)?'bloqué':'débloqué'))
+    window.app.snackbar('Cet utilisateur a été bloqué')
   }
 
   handleMessageClick = (ev, msg) => this.setState({ menuAnchor: ev.target, clickedMessage: msg })
@@ -62,8 +57,15 @@ export default class extends React.Component {
     this.setState({ menuAnchor: null })
   }
 
-  getPinned = () => window.data.messages.filter(it => it.pinned)
-  getNotPinned = () => window.data.messages.filter(it => !it.pinned)
+  getAll = () => {
+    const channel = Data.channel
+    const blocked = Data.blocked
+    const messages = window.data.messages
+    return messages.filter(it => it.channel === channel && !blocked.includes(it.peer))
+  }
+
+  getPinned = () => this.getAll().filter(it => it.pinned)
+  getNotPinned = () => this.getAll().filter(it => !it.pinned)
   handlePin = () => {
     const msg = this.state.clickedMessage
     msg.pinned = !msg.pinned
@@ -81,7 +83,7 @@ export default class extends React.Component {
             {this.renderMessages(this.getPinned())}
             {this.renderMessages(this.getNotPinned())}
           </>):(<>
-            {this.renderMessages(window.data.messages)}
+            {this.renderMessages(this.getAll())}
           </>)}
         </List>
         <Menu
@@ -98,10 +100,10 @@ export default class extends React.Component {
             <ListItemIcon children={<SaveIcon/>} />
             <ListItemText inset primary={(this.state.clickedMessage && this.state.clickedMessage.pinned)?'Désépingler':"Épingler"} />
           </MenuItem>
-          {(this.state.clickedMessage && (this.state.clickedMessage.peer !== window.id)) && (
+        {(this.state.clickedMessage) && (this.state.clickedMessage.peer !== window.id) && (
             <MenuItem onClick={this.handleBlock}>
               <ListItemIcon children={<BlockIcon />} />
-              <ListItemText inset primary={(this.isBlocked(this.state.clickedMessage.peer))?"Débloquer":"Bloquer"} />
+              <ListItemText inset primary="Bloquer" />
             </MenuItem>
           )}
         </Menu>
@@ -111,7 +113,7 @@ export default class extends React.Component {
 }
 
 const Message = ({msg}) => <ListItem  
-  style={{alignItems: 'flex-end', background: (msg.meta.pinned)?'#8080801f':null}}>
+  style={{alignItems: 'flex-end', background: (msg.pinned)?'#8080801f':null}}>
   <Avatar
     src={msg.meta.avatar && '/ipfs/' + msg.meta.avatar}
     children={<AvatarIcon />}

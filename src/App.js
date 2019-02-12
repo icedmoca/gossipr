@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useState} from 'react'
 
 import './index.css';
 
@@ -7,6 +7,7 @@ import Log from "./components/Log";
 import InstallPrompt from './components/InstallPrompt'
 import InfoBar from './components/InfoBar'
 import Home from './components/Home'
+import Drawer from '/src/components/Drawer'
 
 import {MuiThemeProvider} from '@material-ui/core/styles'
 import Themes from './Themes'
@@ -15,11 +16,14 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import IconButton from '@material-ui/core/IconButton'
 import CloseIcon from "@material-ui/icons/Clear";
 import Snackbar from "@material-ui/core/Snackbar";
+import CircularProgress from '@material-ui/core/CircularProgress'
+import Typography from '@material-ui/core/Typography'
 
 import Data from './Data'
 
 export default class extends React.Component{
   state = { 
+    ready: false,
     theme: Data.theme, 
     snackbar: null
   }
@@ -34,13 +38,14 @@ export default class extends React.Component{
   render(){
     return <MuiThemeProvider theme={Themes[this.state.theme]}>
       <CssBaseline/>
-      {(window.location.hash) ? (<>
+      {(Data.channel) ? (this.state.ready) ? (<>
         <InfoBar/>
+        <Drawer />
         <Log />
         <Form />
-      </>):(
-        <Home/>
-      )}
+      </>) : (<Typography style={{display: 'flex', justifyContent: 'center'}}>
+          <CircularProgress style={{position: 'absolute', top: '40%'}} size={120} color='inherit' />
+      </Typography>):(<Home/>)}
       <Snackbar
         color="inherit"
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}

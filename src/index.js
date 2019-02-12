@@ -18,7 +18,7 @@ const updateTitle = () => {
 }
 
 (() => {
-  window.data = { messages: [], channels: [] }
+  window.data = { messages: [], channels: {} }
   console.log('Prepared storage data')
 
   Messenger.register()
@@ -39,9 +39,8 @@ const updateTitle = () => {
 
 window.onhashchange = async () => {
   const channel = window.location.hash
-
-  updateTitle();
   Data.channel = channel
+  updateTitle();
 
   if(!channel){
     console.log('Switched to home')

@@ -31,18 +31,24 @@ const Handlers = {
 
   peers: (data) => {
     const channel = Data.channel
-    if(!channel || !window.appBar) return;
+    if(!channel) return;
+
+    window.data.channels = data
+    if(window.drawer) window.drawer.setState({})
 
     const peers = data[channel]
-    if(peers) window.appBar.setState({ peers: peers.length });
+    if(!peers) return
+    if(window.appBar) window.appBar.setState({ peers: peers.length });
   },
 
   ready: (ready) => {
-    if(window.form) window.form.setState({ ready })
+    window.app.setState({ready})
     if(!ready) return
+
+    sendPeers()
+
     const channel = Data.channel
     if(channel) sendSubscribe(channel)
-    if (window.appBar) window.appBar.setState({ avatar: Data.avatar })
   },
 
   message: (data) => {
@@ -65,6 +71,8 @@ export const sendSubscribe = (channel) => post('subscribe', channel)
 export const sendUnsubscribe = (channel) => post('unsubscribe', channel)
 
 export const sendAvatar = (file) => post('avatar', file)
+
+export const sendPeers = () => post('peers')
 
 export const sendPublish = (data) => {
   const channel = Data.channel

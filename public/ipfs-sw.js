@@ -48,6 +48,7 @@ const boot = async () => {
 
   Memory.channels = await Storage.channels
   log('Retrieved channels')
+  console.log(Memory.channels)
 
   Handlers.ready()
 
@@ -97,12 +98,11 @@ const Node = {
       const peer = packet.from
 
       const { meta, data } = JSON.parse(packet.data.toString())
-      console.log(meta, data)
       if(meta.type !== "message" || !meta.name || !data) return
 
-      post('message', {meta, data, peer})
+      post('message', {meta, data, peer, channel})
     
-      if(!Service.Notification) return
+      if(!Service.Notification || Service.Notification.permission !== 'granted') return
       Service.registration.showNotification(channel, { body: data + '\n~' + meta.name, icon: 'favicon.ico'})
     }
 
@@ -112,8 +112,12 @@ const Node = {
 
   sendPeers: async () => {
     const peers = (channel) => Memory.node.pubsub.peers('gossipr'+channel)
-    const transform = async (channels, channel) => { channels[channel] = await peers(channel); return channels }
-    const channels = await Memory.channels.reduce(transform, {})
+    const transform = async (acc, channel) => { 
+      const channels = await acc
+      channels[channel] = await peers(channel); 
+      return channels 
+    }
+    const channels = await Memory.channels.reduce(transform, Promise.resolve({}))
     post('peers', channels)
   },
 
@@ -201,6 +205,8 @@ const Handlers = {
     const hash = await Node.upload(file, {pin: true})
     post('avatar', hash)
   },
+
+  peers: () => Node.sendPeers(),
 
 }
 
