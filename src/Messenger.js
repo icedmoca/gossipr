@@ -41,19 +41,27 @@ const Handlers = {
     if(window.appBar) window.appBar.setState({ peers: peers.length });
   },
 
+  id: (id) => window.data.id = id,
+
   ready: (ready) => {
     window.app.setState({ready})
     if(!ready) return
 
     sendPeers()
+    sendId()
 
     const channel = Data.channel
     if(channel) sendSubscribe(channel)
   },
 
-  message: (data) => {
-    window.data.messages.push(data)
+  message: (msg) => {
+    window.data.messages.push(msg)
     if(window.logger) window.logger.setState({})
+
+    if(msg.peer === window.id) return
+    if(Data.blocked.includes(msg.peer)) return
+    if(Data.channel === msg.channel) return
+    sendNotify(msg.channel, msg.data + '\n~' + msg.meta.name)
   }, 
 
   avatars: (data) => window.data.avatars = data,
@@ -73,6 +81,10 @@ export const sendUnsubscribe = (channel) => post('unsubscribe', channel)
 export const sendAvatar = (file) => post('avatar', file)
 
 export const sendPeers = () => post('peers')
+
+export const sendId = () => post('id')
+
+export const sendNotify = (channel, body) => post('notify', {channel, body})
 
 export const sendPublish = (data) => {
   const channel = Data.channel

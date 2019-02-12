@@ -18,7 +18,7 @@ const updateTitle = () => {
 }
 
 (() => {
-  window.data = { messages: [], channels: {} }
+  window.data = { messages: [], channels: {}, id: null }
   console.log('Prepared storage data')
 
   Messenger.register()

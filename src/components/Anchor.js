@@ -15,7 +15,7 @@ export default class extends React.Component {
       const hash = ipfsMatch[4]
 
       const source = '/ipfs/'+hash
-      this.setState({source})
+      this.setState({type: 'loading', source})
       
       //const props = await window.node.files.get(hash)
       //console.log('Received file size', props[0].size)
@@ -31,8 +31,8 @@ export default class extends React.Component {
   render() {
     const { children } = this.props
     const { type, source } = this.state
-    // if (type === "loading")
-      // return <CircularProgress color='inherit' size={20} />
+    if (type === "loading")
+      return <CircularProgress color='inherit' size={20} />
     if (type === 'audio')
       return <audio
         controls

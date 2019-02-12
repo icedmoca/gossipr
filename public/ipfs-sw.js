@@ -101,9 +101,6 @@ const Node = {
       if(meta.type !== "message" || !meta.name || !data) return
 
       post('message', {meta, data, peer, channel})
-    
-      if(!Service.Notification || Service.Notification.permission !== 'granted') return
-      Service.registration.showNotification(channel, { body: data + '\n~' + meta.name, icon: 'favicon.ico'})
     }
 
     await Memory.node.pubsub.subscribe('gossipr'+channel, listener)
@@ -207,6 +204,13 @@ const Handlers = {
   },
 
   peers: () => Node.sendPeers(),
+
+  id: () => post('id', Memory.id),
+
+  notify: ({channel, body}) => {
+    if(!Service.Notification) return
+    Service.registration.showNotification(channel, { body, icon: 'favicon.ico'})
+  },
 
 }
 

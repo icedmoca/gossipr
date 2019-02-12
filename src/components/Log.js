@@ -100,7 +100,7 @@ export default class extends React.Component {
             <ListItemIcon children={<SaveIcon/>} />
             <ListItemText inset primary={(this.state.clickedMessage && this.state.clickedMessage.pinned)?'Désépingler':"Épingler"} />
           </MenuItem>
-        {(this.state.clickedMessage) && (this.state.clickedMessage.peer !== window.id) && (
+          {(this.state.clickedMessage) && (this.state.clickedMessage.peer !== window.data.id) && (
             <MenuItem onClick={this.handleBlock}>
               <ListItemIcon children={<BlockIcon />} />
               <ListItemText inset primary="Bloquer" />

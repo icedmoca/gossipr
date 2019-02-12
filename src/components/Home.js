@@ -25,10 +25,18 @@ import AppBar from '@material-ui/core/AppBar'
 
 export default class extends React.Component {
   componentDidMount(){ window.home = this }
-  handleJoin = () => window.location.hash = '#'+this.input.value
-  handleKeyPress = (ev) => (ev.key === 'Enter') && this.handleJoin()
+  
+  handleJoin = () => {
+    let channel = this.input.value
+    if(!channel) return
+    channel = channel.replace(new RegExp(' ', 'g'), '-')
+    if(!channel.startsWith('#')) channel = '#'+channel
+    window.location.hash = channel
+  }
+
   refPinDialog = (it) => this.pinDialog = it
   handlePinDialogOpen = () => this.pinDialog.handleOpen()
+
   render(){
     return (<>
       <AppBar position="relative"  style={{ background: 'transparent', boxShadow: 'none'}}>
@@ -57,9 +65,9 @@ export default class extends React.Component {
               id="channelInput"
               style={{flex: 1, maxWidth: 300}}
               label="Rejoindre le canal"
-              defaultValue={(window.data.channels[0] || '#main').substr(1)}
+              defaultValue='main'
               inputRef={(it) => this.input = it}
-              onKeyPress={this.handleKeyPress}
+              onKeyPress={(ev) => (ev.key === 'Enter') && this.handleJoin()}
               helperText="Vous pouvez aussi en créer un nouveau"
               InputProps={{
                 startAdornment: <InputAdornment position="start">#</InputAdornment>
