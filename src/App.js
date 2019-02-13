@@ -7,7 +7,7 @@ import Log from "./components/Log";
 import InstallPrompt from './components/InstallPrompt'
 import InfoBar from './components/InfoBar'
 import Home from './components/Home'
-import Drawer from '/src/components/Drawer'
+import Drawer from './components/Drawer'
 
 import {MuiThemeProvider} from '@material-ui/core/styles'
 import Themes from './Themes'

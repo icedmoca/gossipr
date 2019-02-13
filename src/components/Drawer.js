@@ -41,8 +41,9 @@ import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import InputAdornment from '@material-ui/core/InputAdornment'
 
-import Data from "/src/Data";
-import * as Messenger from "/src/Messenger";
+import Data from "../Data";
+import Node from '../Node'
+import * as Messenger from "../Messenger";
 
 export default class extends React.Component {
   state = { open: false };
@@ -61,7 +62,7 @@ export default class extends React.Component {
   handleChannelClick = channel => () => {
     Data.channel = channel;
     this.close();
-    Messenger.sendPeers();
+    Node.refreshPeers();
   };
 
   refChannelMenu = it => (this.channelMenu = it);
@@ -73,8 +74,7 @@ export default class extends React.Component {
     return (
       <ListItem
         key={channel}
-        style={{ background: Data.channel === channel ? "#8080801f" : null }}
-      >
+        style={{ background: Data.channel === channel ? "#8080801f" : null }}>
         <Typography
           children={channel}
           variant="h6"
@@ -82,7 +82,7 @@ export default class extends React.Component {
           onClick={this.handleChannelClick(channel)}
         />
         <Typography variant='h6'>
-          {window.data.channels[channel].length}
+          {window.data.peers[channel].length}
         </Typography>
         <Typography style={{marginLeft: 5}} variant='h4'>
           <PeopleIcon color='inherit' />
@@ -105,7 +105,7 @@ export default class extends React.Component {
   handleAvatarUpload = async ev => {
     const file = ev.target.files[0];
     ev.target.value = "";
-    Messenger.sendAvatar(file);
+    Node.uploadAvatar(file);
   };
 
   refShareDialog = it => this.shareDialog = it
@@ -131,7 +131,7 @@ export default class extends React.Component {
       />
       <Avatar
         onClick={this.handleAvatarClick}
-        src={Data.avatar && "/ipfs/" + Data.avatar}
+        src={window.data.avatars[Data.avatar]}
         children={<AvatarIcon />}
       />
       <InputBase
@@ -167,7 +167,7 @@ export default class extends React.Component {
         children={<JoinIcon />}
       />
     </ListItem>
-    {Object.keys(window.data.channels).map(this.renderChannel)}
+    {Object.keys(window.data.peers).map(this.renderChannel)}
   </>
 
   render() {
@@ -237,8 +237,8 @@ class ChannelMenu extends React.Component {
   quit = () => {
     if(this.state.channel === Data.channel)
       return window.app.snackbar('Allez dans un autre canal avant de quitter celui-ci')
-    Messenger.sendUnsubscribe(this.state.channel)
-    Messenger.sendPeers()
+    Node.unsubscribe(this.state.channel)
+    Node.refreshPeers()
     this.clear()
     this.close()
   };

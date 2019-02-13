@@ -1,8 +1,9 @@
 import React from "react";
 
 import CircularProgress from '@material-ui/core/CircularProgress'
-
 import Image from './Image'
+import fileType from 'file-type'
+import Node from '../Node'
 
 export default class extends React.Component {
   state = { type: 'anchor', source: this.props.href }
@@ -11,22 +12,25 @@ export default class extends React.Component {
     const { href } = this.props
     const ipfsPattern = /^https?:\/\/[^/]+\/(ip(f|n)s)\/((\w+).*)/
     const ipfsMatch = href.match(ipfsPattern)
-    if (ipfsMatch) {
-      const hash = ipfsMatch[4]
+    if(!ipfsMatch) return
 
-      const source = '/ipfs/'+hash
-      this.setState({type: 'loading', source})
-      
-      //const props = await window.node.files.get(hash)
-      //console.log('Received file size', props[0].size)
-      //if(props[0].size > 10000000)
-      //  return this.setState({type: 'anchor'})
+    const fallback = () => this.setState({type: 'anchor'})
 
-      //const mimes = ['audio', 'image', 'video']
-      //const mime = Mime.lookup(source)
-      //const type = mime.split('/')[0]
-      //if(mimes.includes(type)) this.setState({ type })
-    }
+    const hash = ipfsMatch[4]
+    this.setState({ type: 'loading' })
+    const {size} = (await Node.node.files.get(hash))[0]
+    console.log('Received file size', size)
+    if(size > 10000000) return fallback()
+
+    const file = await Node.node.files.cat(hash)
+
+    const {ext, mime} = fileType(file)
+    const type = mime.split('/')[0]
+    const mimes = ['audio', 'image', 'video']
+    if(!mimes.includes(type)) return fallback()
+
+    const source = "data:"+type+"/"+ext+";base64,"+file.toString("base64");
+    this.setState({ type, source })
   }
   render() {
     const { children } = this.props

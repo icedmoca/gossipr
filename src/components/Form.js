@@ -13,9 +13,10 @@ import FileIcon from '@material-ui/icons/Folder'
 
 import Recorder from 'recorder-js';
 
-import { dataURL } from '/src/index'
+import { dataURL } from '../index'
 
-import * as Messenger from '/src/Messenger'
+import * as Messenger from '../Messenger'
+import Node from '../Node'
 
 export default class extends React.Component {
   state = { recording: false, record: null, dataURL: null, value: '' }
@@ -46,15 +47,15 @@ export default class extends React.Component {
   handleFileUpload = (ev) => {
     const file = ev.target.files[0]
     ev.target.value = ""
-    Messenger.sendUpload(file)
+    Node.sendFile(file)
   }
 
   handleSend = () => {
     if(this.input) this.input.focus()
-    if(this.state.record) Messenger.sendUpload(this.state.record) 
+    if(this.state.record) Node.sendFile(this.state.record) 
     else{
       const value = this.state.value
-      if(value) Messenger.sendPublish(value)
+      if(value) Node.sendMessage(value)
     }
     this.clearValue()
   }

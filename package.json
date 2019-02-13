@@ -10,6 +10,7 @@
     "@material-ui/icons": "3.0.2",
     "clipboard-copy": "2.0.1",
     "date-and-time": "0.6.3",
+    "file-type": "10.7.1",
     "qrcode-react": "0.1.16",
     "react": "16.8.1",
     "react-dom": "16.8.1",

@@ -10,8 +10,8 @@ import IconButton from '@material-ui/core/IconButton'
 import MenuIcon from '@material-ui/icons/Menu'
 import PeopleIcon from '@material-ui/icons/People'
 
-import * as Messenger from '/src/Messenger'
-import Data from '/src/Data'
+import * as Messenger from '../Messenger'
+import Data from '../Data'
 
 export default class extends React.Component{
   state = {peers: 0 }

@@ -1,12 +1,15 @@
-export const Data = {
+import Node from './Node'
+
+const Data = {
   get name() { return localStorage.getItem('name') || 'Gossipr' },
   set name(value) { localStorage.setItem('name', value) },
 
   get avatar() { return localStorage.getItem('avatar') || '' },
-  set avatar(hash) { 
+  set avatar(hash) { (async () => {
     localStorage.setItem('avatar', hash) 
+    if(hash) await Node.loadAvatar(hash)
     window.drawer.setState({})
-  },
+  })() },
 
   get theme() { return localStorage.getItem('theme') || "light" },
 
@@ -15,6 +18,9 @@ export const Data = {
     localStorage.setItem("channel", value) 
     if(window.location.hash !== value) window.location.hash = value
   },
+
+  get channels() { return JSON.parse(localStorage.getItem('channels')) || [] },
+  set channels(value) { localStorage.setItem('channels', JSON.stringify(value)) },
 
   get blocked() { return JSON.parse(localStorage.getItem("blocked")) || [] },
   set blocked(value) { 
@@ -28,7 +34,6 @@ export const Data = {
     if(window.logger) window.logger.setState({pinnedAtTop: value})  
   },
 
-  meta: (type) => ({ type, name: Data.name, time: new Date().getTime(), avatar: Data.avatar })
 }
 
 export default Data

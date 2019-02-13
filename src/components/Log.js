@@ -21,7 +21,8 @@ import RemarkReact from 'remark-react'
 import RemarkImages from 'remark-images'
 import RemarkBreaks from 'remark-breaks'
 
-import Data from '/src/Data'
+import Data from '../Data'
+import Node from '../Node'
 
 const Paragraph = ({children}) => <div children={children} style={{marginBlockStart: '1em'}}/>
 const Blockquote = ({children}) => 
@@ -115,7 +116,7 @@ export default class extends React.Component {
 const Message = ({msg}) => <ListItem  
   style={{alignItems: 'flex-end', background: (msg.pinned)?'#8080801f':null}}>
   <Avatar
-    src={msg.meta.avatar && '/ipfs/' + msg.meta.avatar}
+    src={Node.getAvatar(msg.meta.avatar)}
     children={<AvatarIcon />}
     onClick={(ev) => window.logger.handleMessageClick(ev, msg)}
   />

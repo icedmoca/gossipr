@@ -1,27 +1,154 @@
-export const subscribe = async (hash) => {
-  const node = window.node
+import Data from './Data'
+import * as Messenger from './Messenger'
 
-  const subscribed = await node.pubsub.ls()
-  if(subscribed.includes('gossipr'+hash)) return;
+const Node = {
 
-  const current = () => (window.location.hash === hash)
-  if(current() && window.form) window.form.setState({ ready: false });
+  get node() { return window.data.node },
+  get id() { return window.data.id },
+  get ready() { return Node.node && Node.node.isOnline() },
+  get buffer() { return Node.node.types.Buffer },
 
-  await node.pubsub.subscribe("gossipr"+hash, async packet => {
-    const msg = json(packet.data.toString());
+  config: {
+    repo: "/gossipr/ipfs",
+    relay: { enabled: true },
+    EXPERIMENTAL: { pubsub: true },
+    config: {
+      Addresses: {
+        Swarm: ["/dns4/ws-star.discovery.libp2p.io/tcp/443/wss/p2p-websocket-star"]
+      }
+    }
+  },
 
-    const blocked = json(localStorage.getItem("blocked")) || [];
-    msg.peer = packet.from
-    if(blocked.includes(msg.peer)) return
+  start: () => new Promise(callback => {
+    const node = new window.Ipfs(Node.config)
+    node.on('ready', async () => {
+      window.data.node = node
+      window.data.id = (await node.id()).id
+      callback()
+    })
+  }),
 
-    getMessages(hash).push(msg)
-    if(current() && window.logger) window.logger.setState({})
-    else notify(hash, msg)
+  refresh: () => {
+    if(!Node.ready) return
+    window.app.setState({ ready: true })
 
-    await retrieveAvatar(msg)
-    if (current() && window.logger) window.logger.setState({})
-  });
+    const channel = Data.channel
+    if (channel){
 
-  console.log('Subscribed to', hash)
-  if(current() && window.form) window.form.setState({ ready: true });
+      if(!Data.channels.includes(channel))
+        Node.subscribe(channel)
+
+      let others = Data.channels.filter(it => it !== channel)
+      others.unshift(channel)
+      Data.channels = others
+    }
+
+    Node.refreshPeers()
+  },
+
+  subscribe: async (channel) => {
+    const channels = await Node.node.pubsub.ls()
+    if(channels.includes('gossipr'+channel)) return
+
+    const listener = async (packet) => {
+      if(!Data.channels.includes(channel)) return
+
+      const peer = packet.from
+      const { meta, data } = JSON.parse(packet.data.toString())
+      if (meta.type !== "message" || !meta.name || !data) return
+
+      Node.handleMessage({ meta, data, peer, channel })
+    }
+
+    await Node.node.pubsub.subscribe('gossipr' + channel, listener)
+    console.log('Subscribed to', channel)
+  },
+
+  unsubscribe: async (channel) => {
+    const channels = Data.channels.filter(it => it !== channel)
+    Data.channels = channels
+    console.log('Unsubscribed from', channel)
+  },
+
+  refreshPeers: async () => {
+    const current = Data.channel
+    if (!current) return;
+
+    const peersOf = (channel) => Node.node.pubsub.peers('gossipr' + channel)
+    const transform = async (acc, channel) => {
+      const channels = await acc
+      channels[channel] = await peersOf(channel);
+      return channels
+    }
+
+    const peers = window.data.peers = await Data.channels.reduce(transform, Promise.resolve({}))
+    if(window.drawer) window.drawer.setState({})
+ 
+    if (!peers[current]) return
+    if(window.appBar) window.appBar.setState({ peers: peers[current].length });
+  },
+
+  catAndRespond: async (hash) => {
+    const data = await Node.node.files.cat(hash)
+    return new Response(data, { status: 200, statusText: 'OK', headers: {} })
+  },
+
+  arrayBuffer: (blob) => new Promise(callback => {
+    const reader = new FileReader();
+    reader.onloadend = () => callback(reader.result);
+    reader.readAsArrayBuffer(blob);
+  }),
+
+  upload: async (file, options) => {
+    const arr = await Node.arrayBuffer(file)
+    const buffer = Node.buffer.from(arr)
+    const res = await Node.node.files.add(buffer, options)
+    return res[0].hash
+  },
+
+  meta: (type) => ({ type, name: Data.name, time: new Date().getTime(), avatar: Data.avatar }),
+
+  sendMessage: (data) => Node.publish(Data.channel, Node.meta('message'), data),
+
+  sendFile: async (file) => {
+    const hash = await Node.upload(file, { pin: true })
+    Node.sendMessage('https://ipfs.io/ipfs/' + hash)
+  },
+
+  publish: async (channel, meta, data) => {
+    const raw = { meta, data }
+    const json = JSON.stringify(raw)
+    const buffer = Node.buffer.from(json);
+    Node.node.pubsub.publish("gossipr"+channel, buffer);
+  },
+
+  uploadAvatar: async (file) => {
+    Data.avatar = await Node.upload(file, {pin: true})
+  },
+
+  handleMessage: async (msg) => {
+    window.data.messages.push(msg)
+    if (window.logger) window.logger.setState({})
+
+    if (msg.peer === window.id) return
+    if (Data.blocked.includes(msg.peer)) return
+    if (Data.channel === msg.channel && document.visibilityState === 'visible') return
+    Messenger.notify(msg.channel, msg.data + '\n~' + msg.meta.name)
+  },
+
+  getAvatar: (hash) => {
+    const avatar = window.data.avatars[hash]
+    if(!avatar) Node.loadAvatar(hash)
+    return avatar
+  },
+
+  loadAvatar: async (hash) => {
+    if(window.data.avatars[hash]) return
+    const data = await Node.node.files.cat(hash)
+    window.data.avatars[hash] = 'data:image/png;base64,'+data.toString("base64")
+    if(window.logger) window.logger.setState({})
+  },
+
 }
+
+export default Node
