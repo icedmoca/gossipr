@@ -10,11 +10,13 @@ const Node = {
 
   config: {
     repo: "/gossipr/ipfs",
-    relay: { enabled: true },
     EXPERIMENTAL: { pubsub: true },
     config: {
       Addresses: {
-        Swarm: ["/dns4/ws-star.discovery.libp2p.io/tcp/443/wss/p2p-websocket-star"]
+        Swarm: [
+          "/dns4/ws-star.discovery.libp2p.io/tcp/443/wss/p2p-websocket-star",
+          //"/dns4/wrtc-star.discovery.libp2p.io/tcp/443/wss/p2p-webrtc-star"
+        ]
       }
     }
   },
@@ -143,6 +145,7 @@ const Node = {
   },
 
   loadAvatar: async (hash) => {
+    if(!hash) return
     if(window.data.avatars[hash]) return
     const data = await Node.node.files.cat(hash)
     window.data.avatars[hash] = 'data:image/png;base64,'+data.toString("base64")

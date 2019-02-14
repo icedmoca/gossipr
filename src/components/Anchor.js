@@ -8,29 +8,31 @@ import Node from '../Node'
 export default class extends React.Component {
   state = { type: 'anchor', source: this.props.href }
 
-  async componentDidMount() {
-    const { href } = this.props
-    const ipfsPattern = /^https?:\/\/[^/]+\/(ip(f|n)s)\/((\w+).*)/
-    const ipfsMatch = href.match(ipfsPattern)
-    if(!ipfsMatch) return
+  componentDidMount() {
+    (async () => {
+      const { href } = this.props
+      const ipfsPattern = /^https?:\/\/[^/]+\/(ip(f|n)s)\/((\w+).*)/
+      const ipfsMatch = href.match(ipfsPattern)
+      if(!ipfsMatch) return
+      const hash = ipfsMatch[4]
 
-    const fallback = () => this.setState({type: 'anchor'})
+      this.setState({ type: 'loading' })
+      const fallback = () => this.setState({type: 'anchor'})
 
-    const hash = ipfsMatch[4]
-    this.setState({ type: 'loading' })
-    const {size} = (await Node.node.files.get(hash))[0]
-    console.log('Received file size', size)
-    if(size > 10000000) return fallback()
+      //const {size} = (await Node.node.files.get(hash))[0]
+      //console.log('Received file size', size)
+      //if(size > 10000000) return fallback()
 
-    const file = await Node.node.files.cat(hash)
+      const file = await Node.node.files.cat(hash)
 
-    const {ext, mime} = fileType(file)
-    const type = mime.split('/')[0]
-    const mimes = ['audio', 'image', 'video']
-    if(!mimes.includes(type)) return fallback()
+      const {ext, mime} = fileType(file)
+      const type = mime.split('/')[0]
+      const mimes = ['audio', 'image', 'video']
+      if(!mimes.includes(type)) return fallback()
 
-    const source = "data:"+type+"/"+ext+";base64,"+file.toString("base64");
-    this.setState({ type, source })
+      const source = "data:"+type+"/"+ext+";base64,"+file.toString("base64");
+      this.setState({ type, source })
+    })()
   }
   render() {
     const { children } = this.props

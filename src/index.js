@@ -1,70 +1,70 @@
-import React,  { useState } from "react";
+import React, { useState } from "react";
 import ReactDOM from "react-dom";
-import * as serviceWorker from './serviceWorker'
+import * as serviceWorker from "./serviceWorker";
 
 import "./index.css";
 import App from "./App";
 
-import * as Messenger from './Messenger'
-import Data from './Data'
-import Node from './Node'
+import * as Messenger from "./Messenger";
+import Data from "./Data";
+import Node from "./Node";
 
-export const dataURL = (blob) => new Promise(callback => {
-  var reader = new FileReader();
-  reader.onload = () => callback(reader.result);
-  reader.readAsDataURL(blob);
-});
+export const dataURL = blob =>
+  new Promise(callback => {
+    var reader = new FileReader();
+    reader.onload = () => callback(reader.result);
+    reader.readAsDataURL(blob);
+  });
 
 const updateTitle = () => {
-  if(!window.location.hash) document.title = "Gossipr"
-  else document.title = window.location.hash+" - Gossipr" 
-}
+  if (!window.location.hash) document.title = "Gossipr";
+  else document.title = window.location.hash + " - Gossipr";
+};
 
 (async () => {
-  window.data = { messages: [], peers: {}, avatars: {}, id: null, node: null }
-  console.log('Prepared storage data')
+  window.data = { messages: [], peers: {}, avatars: {}, id: null, node: null };
+  console.log("Prepared storage data");
 
-  Messenger.register()
+  Messenger.register();
 
-  window.Notification.requestPermission()
+  if (window.Notification) window.Notification.requestPermission();
 
-  updateTitle()
+  updateTitle();
 
-  const channel = window.location.hash
-  const last = Data.channel
+  const channel = window.location.hash;
+  const last = Data.channel;
 
-  if(channel !== last){
-    if(channel) return Data.channel = channel
-    console.log('Redirecting to last hash', last)
+  if (channel !== last) {
+    if (channel) return (Data.channel = channel);
+    console.log("Redirecting to last hash", last);
     window.location.hash = last;
   }
 
-  console.log('Starting IPFS...')
-  await Node.start()
-  console.log('IPFS is ready!')
+  console.log("Starting IPFS...");
+  await Node.start();
+  console.log("IPFS is ready!");
 
-  console.log('Pins are', await Node.node.pin.ls())
-  console.log('PeerID is', Node.id)
+  console.log("Pins are", await Node.node.pin.ls());
+  console.log("PeerID is", Node.id);
 
-  console.log('Channels are', Data.channels)
-  Data.channels.forEach(Node.subscribe)
-  
-  setInterval(Node.refreshPeers, 2000)
-  console.log('Refreshing peers every 2 seconds')
+  console.log("Channels are", Data.channels);
+  Data.channels.forEach(Node.subscribe);
 
-  if(Data.avatar) Node.loadAvatar(Data.avatar)
-  
-  Node.refresh()
+  setInterval(Node.refreshPeers, 2000);
+  console.log("Refreshing peers every 2 seconds");
 
-})()
+  if (Data.avatar) Node.loadAvatar(Data.avatar);
+
+  Node.refresh();
+})();
 
 window.onhashchange = async () => {
-  const channel = window.location.hash
-  if(channel) console.log('Switched to', channel)
-  Data.channel = channel
+  const channel = window.location.hash;
+  if (channel) console.log("Switched to", channel);
+  Data.channel = channel;
   updateTitle();
   window.app.setState({});
-  Node.refresh()
+  Node.refresh();
 };
 
 ReactDOM.render(<App />, document.getElementById("root"));
