@@ -12,6 +12,7 @@ import MenuItem from "@material-ui/core/MenuItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import QuoteIcon from '@material-ui/icons/FormatQuote'
 import SaveIcon from '@material-ui/icons/Save'
+import Typography from '@material-ui/core/Typography'
 
 import Anchor from './Anchor'
 import Image from './Image'
@@ -34,12 +35,6 @@ export default class extends React.Component {
   state = { menuAnchor: null, clickedMessage: null, pinnedAtTop: Data.pinnedAtTop };
   componentDidMount() { window.logger = this }
 
-  togglePinnedAtTop = () => Data.pinnedAtTop = !Data.pinnedAtTop
-  clearAll = () => {
-    window.data.messages = this.getPinned()
-    window.app.snackbar('Tous les messages ont été effacés')
-  }
-
   handleBlock = () => {
     const peer = this.state.clickedMessage.peer
     let blocked = Data.blocked;
@@ -61,8 +56,9 @@ export default class extends React.Component {
   getAll = () => {
     const channel = Data.channel
     const blocked = Data.blocked
-    const messages = window.data.messages
-    return messages.filter(it => it.channel === channel && !blocked.includes(it.peer))
+    let messages = Data.messages.filter(it => it.channel === channel)
+    this.state.tooltip = !messages.length
+    return messages.filter(it => !blocked.includes(it.peer))
   }
 
   getPinned = () => this.getAll().filter(it => it.pinned)
@@ -87,6 +83,13 @@ export default class extends React.Component {
             {this.renderMessages(this.getAll())}
           </>)}
         </List>
+        {(this.state.tooltip) && (
+          <div style={{paddingLeft: 16, paddingRight: 16, textAlign: 'center'}}>
+            <Typography variant='h5' children={'Bienvenue sur le canal ' + Data.channel}/>
+            <Typography variant='subtitle1' children={'Commencez par envoyer un message 😉'} />
+            <Typography variant='subtitle1' children={'(ou bien restez muet 🙊)'} />
+          </div>
+        )}
         <Menu
           disableAutoFocusItem
           anchorEl={this.state.menuAnchor}

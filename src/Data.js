@@ -1,36 +1,39 @@
 import Node from './Node'
 
 const Data = {
-  get name() { return localStorage.getItem('name') || 'Gossipr' },
-  set name(value) { localStorage.setItem('name', value) },
+  get name() { return localStorage.name || 'Gossipr' },
+  set name(value) { localStorage.name = value },
 
-  get avatar() { return localStorage.getItem('avatar') || '' },
+  get avatar() { return localStorage.avatar || '' },
   set avatar(hash) { (async () => {
-    localStorage.setItem('avatar', hash) 
+    localStorage.avatar = hash
     if(hash) await Node.loadAvatar(hash)
     window.drawer.setState({})
   })() },
 
-  get theme() { return localStorage.getItem('theme') || "light" },
+  get theme() { return localStorage.theme || "light" },
 
-  get channel() { return localStorage.getItem("channel") || "" },
+  get channel() { return localStorage.channel || "" },
   set channel(value) { 
-    localStorage.setItem("channel", value) 
+    localStorage.channel = value 
     if(window.location.hash !== value) window.location.hash = value
   },
 
-  get channels() { return JSON.parse(localStorage.getItem('channels')) || [] },
-  set channels(value) { localStorage.setItem('channels', JSON.stringify(value)) },
+  get messages() { return JSON.parse(localStorage.messages) || [] },
+  set messages(value) { localStorage.messages = JSON.stringify(value) },
 
-  get blocked() { return JSON.parse(localStorage.getItem("blocked")) || [] },
+  get channels() { return JSON.parse(localStorage.channels) || [] },
+  set channels(value) { localStorage.channels = JSON.stringify(value) },
+
+  get blocked() { return JSON.parse(localStorage.blocked) || [] },
   set blocked(value) { 
-    localStorage.setItem('blocked', JSON.stringify(value)) 
+    localStorage.blocked =  JSON.stringify(value) 
     if(window.logger) window.logger.setState({}) 
   },
 
-  get pinnedAtTop() { return localStorage.getItem('pinnedAtTop') === 'true' },
+  get pinnedAtTop() { return localStorage.pinnedAtTop === 'true' },
   set pinnedAtTop(value) { 
-    localStorage.setItem('pinnedAtTop', value) 
+    localStorage.pinnedAtTop = value
     if(window.logger) window.logger.setState({pinnedAtTop: value})  
   },
 

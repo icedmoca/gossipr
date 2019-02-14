@@ -129,7 +129,7 @@ const Node = {
   },
 
   handleMessage: async (msg) => {
-    window.data.messages.push(msg)
+    Data.messages = [...Data.messages, msg]
     if (window.logger) window.logger.setState({})
 
     if (msg.peer === window.id) return

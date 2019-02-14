@@ -244,9 +244,8 @@ class ChannelMenu extends React.Component {
   };
 
   clear = () => {
-    let messages = window.data.messages
-    messages = messages.filter(it => it.channel !== this.state.channel)
-    window.data.messages = messages
+    const channel = this.state.channel
+    Data.messages = Data.messages.filter(it => it.channel !== channel)
   }
 
   clearAll = () => {

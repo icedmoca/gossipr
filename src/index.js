@@ -22,7 +22,7 @@ const updateTitle = () => {
 };
 
 (async () => {
-  window.data = { messages: [], peers: {}, avatars: {}, id: null, node: null };
+  window.data = { peers: {}, avatars: {}, id: null, node: null };
   console.log("Prepared storage data");
 
   Messenger.register();
@@ -39,6 +39,8 @@ const updateTitle = () => {
     console.log("Redirecting to last hash", last);
     window.location.hash = last;
   }
+
+  if(!Array.isArray(Data.messages)) Data.messages = []
 
   console.log("Starting IPFS...");
   await Node.start();
