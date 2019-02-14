@@ -19,15 +19,15 @@ const Data = {
     if(window.location.hash !== value) window.location.hash = value
   },
 
-  get messages() { return JSON.parse(localStorage.messages) || [] },
+  get messages() { return JSON.parse(localStorage.messages || '[]') },
   set messages(value) { localStorage.messages = JSON.stringify(value) },
 
-  get channels() { return JSON.parse(localStorage.channels) || [] },
+  get channels() { return JSON.parse(localStorage.channels || '[]') },
   set channels(value) { localStorage.channels = JSON.stringify(value) },
 
-  get blocked() { return JSON.parse(localStorage.blocked) || [] },
+  get blocked() { return JSON.parse(localStorage.blocked || '[]') },
   set blocked(value) { 
-    localStorage.blocked =  JSON.stringify(value) 
+    localStorage.blocked = JSON.stringify(value) 
     if(window.logger) window.logger.setState({}) 
   },
 
