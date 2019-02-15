@@ -5,22 +5,52 @@ export default {
   light: createMuiTheme({
     typography: { useNextVariants: true },
     palette: {
-        primary: { main: '#795548' },
-        secondary: { main: '#795548' },
-        error: red
+      primary: { main: '#ffffff'  },
+      secondary: { main: '#fafafa' },
+      error: red,
+      background: {
+        paper: '#ffffff',
+        default: "#ffffff"
+      },
     }
   }),
-  dark: createMuiTheme({
+  choco: createMuiTheme({
     typography: { useNextVariants: true },
     palette: {
-      primary: { main: '#291d16' },
-      secondary: { main: '#795548' },
+      primary: { main: '#4e342e' },
+      secondary: { main: '#5d4037' },
+      error: red, 
+      type: 'dark',
+      background: {
+        paper: '#4e342e',
+        default: "#4e342e"
+      },
+    },
+  }),
+  dark: createMuiTheme({
+      typography: { useNextVariants: true },
+      palette: {
+        primary: { main: '#212121' },
+        secondary: { main: '#1b1b1b' },
         error: red,
         type: 'dark',
         background: {
-          paper: '#171717',
-          default: "#171717"
+          paper: '#212121',
+          default: "#212121"
         },
+      },
+  }),
+  navy: createMuiTheme({
+    typography: { useNextVariants: true },
+    palette: {
+      primary: { main: '#263238'  },
+      secondary: { main: '#37474f' },
+      error: red,
+      type: 'dark',
+      background: {
+        paper: '#263238',
+        default: "#263238"
+      },
     }
-  })
+  }),
 };

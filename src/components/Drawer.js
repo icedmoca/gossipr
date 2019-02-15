@@ -130,6 +130,7 @@ export default class extends React.Component {
         onChange={this.handleAvatarUpload}
       />
       <Avatar
+        style={{background: (Data.theme !== 'light')?'white':null}}
         onClick={this.handleAvatarClick}
         src={window.data.avatars[Data.avatar]}
         children={<AvatarIcon />}

@@ -22,6 +22,8 @@ export default class extends React.Component{
 
   render(){
     return <AppBar 
+      color='primary'
+      style={{ boxShadow: 'none' }}
       position="sticky">
       <Toolbar style={{padding: '0 10px'}}  >
         <Typography 

@@ -22,19 +22,20 @@ import Typography from '@material-ui/core/Typography'
 import Data from './Data'
 
 export default class extends React.Component{
-  state = { 
-    ready: false,
-    theme: Data.theme, 
-    snackbar: null
-  }
-  snackbar = (message) => this.setState({ snackbar: message })
+  state = { ready: false, theme: Data.theme, snackbar: null }
   componentDidMount(){ window.app = this }
+
+  snackbar = (message) => this.setState({ snackbar: message })
+  closeSnackbar = () => this.snackbar(null)
+
   switchTheme = () => {
-    const theme = (this.state.theme==='light')?'dark':'light'
+    const themes = Object.keys(Themes)
+    const i = themes.indexOf(this.state.theme)
+    const theme = themes[(i+1)%themes.length]
     this.setState({theme})
     localStorage.setItem('theme', theme)
   }
-  handleSnackbarClose = () => this.setState({ snackbar: null })
+
   render(){
     return <MuiThemeProvider theme={Themes[this.state.theme]}>
       <CssBaseline/>
@@ -51,13 +52,13 @@ export default class extends React.Component{
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
         open={Boolean(this.state.snackbar)}
         autoHideDuration={6000}
-        onClose={this.handleSnackbarClose}
+        onClose={this.closeSnackbar}
         message={this.state.snackbar}
         action={[
           <IconButton
             key="close"
             color="inherit"
-            onClick={this.handleSnackbarClose}
+            onClick={this.closeSnackbar}
             children={<CloseIcon />}
           />
         ]}

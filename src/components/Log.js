@@ -69,9 +69,17 @@ export default class extends React.Component {
     this.setState({menuAnchor: null});
   }
 
-  renderMessages = (messages) => [...messages].reverse().map((msg) => {
-    return <Message msg={msg} key={-(msg.meta.time || new Date().getTime())} />
+  renderMessages = (messages) => messages.map((msg) => {
+    return <Message msg={msg} key={msg.meta.time || new Date().getTime()} />
   })
+
+  getSnapshotBeforeUpdate(prevProps, prevState){
+    return (window.innerHeight + window.scrollY) >= (document.body.scrollHeight - 100)
+  }
+
+  componentDidUpdate(props, state, snapshot) {
+    if (snapshot) this.end.scrollIntoView()
+  }
 
   render() {
     return (<>
@@ -83,6 +91,7 @@ export default class extends React.Component {
             {this.renderMessages(this.getAll())}
           </>)}
         </List>
+        <div style={{ float: "left", clear: "both" }} ref={it => this.end = it }/>
         {(this.state.tooltip) && (
           <div style={{paddingLeft: 16, paddingRight: 16, textAlign: 'center'}}>
             <Typography variant='h5' children={'Bienvenue sur le canal ' + Data.channel}/>
@@ -119,6 +128,7 @@ export default class extends React.Component {
 const Message = ({msg}) => <ListItem  
   style={{alignItems: 'flex-end', background: (msg.pinned)?'#8080801f':null}}>
   <Avatar
+    style={{ background: (Data.theme !== 'light') ? 'white' : null }}
     src={Node.getAvatar(msg.meta.avatar)}
     children={<AvatarIcon />}
     onClick={(ev) => window.logger.handleMessageClick(ev, msg)}

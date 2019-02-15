@@ -62,7 +62,7 @@ export default class extends React.Component {
 
   render() {
     return <AppBar 
-    color="default"
+    color="secondary"
     position='fixed'
     style={{ top: 'auto', bottom: 0 }}>
     <Toolbar style={{padding: '0 10px'}}>

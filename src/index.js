@@ -35,9 +35,11 @@ const updateTitle = () => {
   const last = Data.channel;
 
   if (channel !== last) {
-    if (channel) return (Data.channel = channel);
-    console.log("Redirecting to last hash", last);
-    window.location.hash = last;
+    if(channel) Data.channel = channel
+    else {
+      console.log("Redirecting to last channel", last);
+      window.location.hash = last;
+    }
   }
 
   if(!Array.isArray(Data.messages)) Data.messages = []
