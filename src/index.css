@@ -24,4 +24,11 @@ a {
 }
 
 .noselect { user-select: none; }
-.grow{ flex-grow: 1; }
+.noscrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.noscrollbar::-webkit-scrollbar { /* WebKit */
+  display: none;
+}
+.grow{ flex: 1; }

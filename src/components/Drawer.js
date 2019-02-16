@@ -61,7 +61,7 @@ export default class extends React.Component {
 
   changeName = e => (Data.name = e.target.value);
 
-  handleChannelClick = channel => () => {
+  handleChannelClick = channel => (e) => {
     Data.channel = channel;
     this.close();
     Node.refreshPeers();
@@ -69,6 +69,7 @@ export default class extends React.Component {
 
   refChannelMenu = it => (this.channelMenu = it);
   openChannelMenu = channel => e => {
+    e.preventDefault()
     this.channelMenu.open(e.target, channel);
   };
 
@@ -76,7 +77,8 @@ export default class extends React.Component {
     return (
       <ListItem
         key={channel}
-        style={{ background: Data.channel === channel ? "#8080801f" : null }}>
+        style={{ background: Data.channel === channel ? "#8080801f" : null }}
+        onContextMenu={this.openChannelMenu(channel)}>
         <Typography
           children={channel}
           variant="h6"
@@ -175,7 +177,7 @@ export default class extends React.Component {
         />
       </ListItem>
     </List> 
-    <List style={{overflowY: 'scroll'}}>
+    <List className='noscrollbar' style={{overflowY: 'scroll'}}>
       {Object.keys(window.data.peers).map(this.renderChannel)}
     </List> 
   </>
