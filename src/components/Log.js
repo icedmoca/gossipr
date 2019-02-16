@@ -46,10 +46,7 @@ export default class extends React.Component {
 
   handleMessageClick = (ev, msg) => this.setState({ menuAnchor: ev.target, clickedMessage: msg })
   handleQuote = () => {
-    const foot = "> ~"+this.state.clickedMessage.meta.name+"\n\n"
-    const quote = "> "+this.state.clickedMessage.data.replace(new RegExp('\n', 'g'), '\n> ')+"\n"
-    const value = window.form.state.value + quote + foot
-    window.form.setState({ value, record: null })
+    window.form.handleQuote(this.state.clickedMessage)
     this.setState({ menuAnchor: null })
   }
 

@@ -114,7 +114,7 @@ const Node = {
 
   sendFile: async (file) => {
     const hash = await Node.upload(file, { pin: true })
-    Node.sendMessage('https://ipfs.io/ipfs/' + hash)
+    return 'https://ipfs.io/ipfs/' + hash
   },
 
   publish: async (channel, meta, data) => {
@@ -132,6 +132,7 @@ const Node = {
     Data.messages = [...Data.messages, msg]
     if (window.logger) window.logger.setState({})
 
+    if (Data.muted.includes(msg.channel)) return
     if (msg.peer === window.id) return
     if (Data.blocked.includes(msg.peer)) return
     if (Data.channel === msg.channel && document.visibilityState === 'visible') return

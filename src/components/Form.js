@@ -10,16 +10,18 @@ import RecordIcon from '@material-ui/icons/Mic'
 import RecordNoneIcon from '@material-ui/icons/MicNone'
 import CloseIcon from '@material-ui/icons/Clear'
 import FileIcon from '@material-ui/icons/Folder'
+import ListItemText from '@material-ui/core/ListItemText'
 
 import Recorder from 'recorder-js';
 
 import { dataURL } from '../index'
 
 import * as Messenger from '../Messenger'
+import Data from '../Data'
 import Node from '../Node'
 
 export default class extends React.Component {
-  state = { recording: false, record: null, dataURL: null, value: '' }
+  state = { recording: false, record: null, dataURL: null, value: '', quote: null }
   componentDidMount() {  window.form = this; }
 
   handleInputChange = ev => this.setState({ value: ev.target.value })
@@ -44,30 +46,59 @@ export default class extends React.Component {
 
   fileUploaderRef = (it) => this.fileUploader = it
   handleFileUploadClick = () => this.fileUploader.click()
-  handleFileUpload = (ev) => {
+  handleFileUpload = async (ev) => {
     const file = ev.target.files[0]
     ev.target.value = ""
-    Node.sendFile(file)
+    const url = await Node.sendFile(file)
+    this.send(url)
   }
 
-  handleSend = () => {
+  handleSend = async () => {
     if(this.input) this.input.focus()
-    if(this.state.record) Node.sendFile(this.state.record) 
-    else{
-      const value = this.state.value
-      if(value) Node.sendMessage(value)
+
+    if(this.state.record) {
+      const url = await Node.sendFile(this.state.record) 
+      this.send(url)
     }
+
+    else {
+      const value = this.state.value
+      if(value) this.send(value)
+    }
+    
     this.clearValue()
   }
+
+  send = (data) => {
+    const {quote} = this.state
+    this.state.quote = null
+    if(!quote) return Node.sendMessage(data)
+    const body = '> ' + quote.data.replace(new RegExp('\n', 'g'), '\n> ')
+    const foot = '> ~'+quote.meta.name
+    const message = body + '\n' + foot + '\n\n' + data
+    Node.sendMessage(message)
+  }
+
+  handleQuote = (quote) => this.setState({quote})
+  clearQuote = () => this.setState({quote: null})
 
   render() {
     return <AppBar 
     color="secondary"
     position='fixed'
     style={{ top: 'auto', bottom: 0 }}>
+    {(this.state.quote) && (
+      <Toolbar style={{paddingTop: 10}}>
+        <CloseIcon onClick={this.clearQuote}/>
+        <ListItemText  
+            style={{ whiteSpace: 'pre-line' }}
+        primary={this.state.quote.data} 
+        secondary={"~" + this.state.quote.meta.name}/> 
+      </Toolbar>
+    )}
     <Toolbar style={{padding: '0 10px'}}>
         <IconButton 
-          color={(this.state.recording)?'secondary':'default'}
+          color='error'
           onClick={this.handleRecord}
           style={{width: 36, height: 36, padding: 0, marginRight: 5}}
           children={(this.state.recording)?(<RecordIcon/>):(<RecordNoneIcon/>)}
@@ -92,13 +123,14 @@ export default class extends React.Component {
           <InputBase
             autoFocus
             inputRef={(it) => this.input = it}
-            multiline={true}
+            multiline={Data.multiline}
             rowsMax="10"
             style={{flex: 1, margin: '0 10px 0 0'}}
             placeholder="Tapez un message"
             value={this.state.value}
             onFocus={this.handleFocus}
             onChange={this.handleInputChange}
+            onKeyPress={(e) => (!Data.multiline) && (e.key === 'Enter') && this.handleSend()}
           />
           {(this.state.value) && (
             <CloseIcon onClick={this.clearValue}/>

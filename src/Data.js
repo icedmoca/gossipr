@@ -4,6 +4,9 @@ const Data = {
   get name() { return localStorage.name || 'Gossipr' },
   set name(value) { localStorage.name = value },
 
+  get newfag() { return localStorage.newfag !== 'false' },
+  set newfag(value) { localStorage.newfag = value },
+
   get avatar() { return localStorage.avatar || '' },
   set avatar(hash) { (async () => {
     localStorage.avatar = hash
@@ -12,12 +15,16 @@ const Data = {
   })() },
 
   get theme() { return localStorage.theme || "light" },
+  set theme(value) { localStorage.theme = value },
 
   get channel() { return localStorage.channel || "" },
   set channel(value) { 
     localStorage.channel = value 
     if(window.location.hash !== value) window.location.hash = value
   },
+
+  get multiline() { return localStorage.multiline === 'true' },
+  set multiline(value) { return localStorage.multiline = value },
 
   get messages() { return JSON.parse(localStorage.messages || '[]') },
   set messages(value) { localStorage.messages = JSON.stringify(value) },
@@ -30,6 +37,9 @@ const Data = {
     localStorage.blocked = JSON.stringify(value) 
     if(window.logger) window.logger.setState({}) 
   },
+
+  get muted() { return JSON.parse(localStorage.muted || '[]') },
+  set muted(value) { localStorage.muted = JSON.stringify(value) },
 
   get pinnedAtTop() { return localStorage.pinnedAtTop === 'true' },
   set pinnedAtTop(value) { 

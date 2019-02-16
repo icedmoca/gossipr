@@ -23,6 +23,8 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button'
 import AppBar from '@material-ui/core/AppBar'
 
+import Data from '../Data'
+
 export default class extends React.Component {
   componentDidMount(){ window.home = this }
   
@@ -31,7 +33,9 @@ export default class extends React.Component {
     if(!channel) return
     channel = channel.replace(new RegExp(' ', 'g'), '-')
     if(!channel.startsWith('#')) channel = '#'+channel
+    Data.newfag = false
     window.location.hash = channel
+    window.app.setState({})
   }
 
   refPinDialog = (it) => this.pinDialog = it
@@ -65,9 +69,9 @@ export default class extends React.Component {
               id="channelInput"
               style={{flex: 1, maxWidth: 300}}
               label="Rejoindre le canal"
-              defaultValue='main'
+              defaultValue={Data.channel.substr(1) || 'main'}
               inputRef={(it) => this.input = it}
-              onKeyPress={(ev) => (ev.key === 'Enter') && this.handleJoin()}
+              onKeyPress={(e) => (e.key === 'Enter') && this.handleJoin()}
               helperText="Vous pouvez aussi en créer un nouveau"
               InputProps={{
                 startAdornment: <InputAdornment position="start">#</InputAdornment>

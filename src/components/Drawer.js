@@ -27,6 +27,8 @@ import ClearAllIcon from '@material-ui/icons/ClearAll'
 import PeopleIcon from '@material-ui/icons/People'
 import JoinIcon from '@material-ui/icons/Send'
 import BlockIcon from "@material-ui/icons/Block";
+import MuteIcon from '@material-ui/icons/NotificationsOff'
+import MultilineIcon from '@material-ui/icons/SubdirectoryArrowLeft'
 
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
@@ -198,37 +200,41 @@ class SettingsMenu extends React.Component {
     window.app.snackbar('Tout le monde a été débloqué')
   }
 
+  toggleMultiline = () => {
+    const result = Data.multiline = !Data.multiline
+    window.app.snackbar('Sauts de ligne '+((result)?'activés':'désactivés'))
+  }
+
   render() {
-    return (
-      <>
-        <Menu
-          disableAutoFocusItem
-          anchorEl={this.state.anchor}
-          open={Boolean(this.state.anchor)}
-          onClose={this.close}
-        >
-          <MenuItem onClick={this.theme}>
-            <ListItemIcon children={<ThemeIcon />} />
-            <ListItemText children="Changer de thème" />
-          </MenuItem>
-          <MenuItem onClick={this.togglePinnedAtTop}>
-            <ListItemIcon children={<SaveIcon/>}/>
-            <ListItemText children='Épinglés en haut'/>
-          </MenuItem>
-          <MenuItem onClick={this.unblockAll}>
-            <ListItemIcon children={<BlockIcon/>}/>
-            <ListItemText children='Débloquer tout le monde'/>
-          </MenuItem>
-        </Menu>
-      </>
-    );
+    return <Menu
+      disableAutoFocusItem
+      anchorEl={this.state.anchor}
+      open={Boolean(this.state.anchor)}
+      onClose={this.close}>
+      <MenuItem onClick={this.theme}>
+        <ListItemIcon children={<ThemeIcon />} />
+        <ListItemText children="Changer de thème" />
+      </MenuItem>
+      <MenuItem onClick={this.togglePinnedAtTop}>
+        <ListItemIcon children={<SaveIcon/>}/>
+        <ListItemText children='Épinglés en haut'/>
+      </MenuItem>
+      <MenuItem onClick={this.toggleMultiline}>
+        <ListItemIcon children={<MultilineIcon/>}/>
+        <ListItemText children='Sauts de ligne'/>
+      </MenuItem>
+      <MenuItem onClick={this.unblockAll}>
+        <ListItemIcon children={<BlockIcon/>}/>
+        <ListItemText children='Débloquer tout le monde'/>
+      </MenuItem>
+    </Menu>
   }
 }
 
 class ChannelMenu extends React.Component {
   state = { anchor: null, channel: null };
   open = (anchor, channel) => this.setState({ anchor, channel });
-  close = () => this.setState({ anchor: null, channel: null });
+  close = () => this.setState({ anchor: null });
 
   share = () => {
     window.drawer.shareDialog.open(this.state.channel)
@@ -245,7 +251,7 @@ class ChannelMenu extends React.Component {
   };
 
   clear = () => {
-    const channel = this.state.channel
+    const { channel } = this.state
     Data.messages = Data.messages.filter(it => it.channel !== channel)
   }
 
@@ -255,30 +261,45 @@ class ChannelMenu extends React.Component {
     this.close()
   }
 
+  mute = () => {
+    const {channel} = this.state
+    if(Data.muted.includes(channel)){
+      Data.muted = Data.muted.filter(it => it !== channel)
+      window.app.snackbar("Ce canal n'est plus en sourdine")
+    }
+    else {
+      Data.muted = [channel, ...Data.muted]
+      window.app.snackbar("Ce canal est désormais en sourdine")
+    }
+  }
+
   render() {
-    return (
-      <>
-        <Menu
-          disableAutoFocusItem
-          anchorEl={this.state.anchor}
-          open={Boolean(this.state.anchor)}
-          onClose={this.close}
-        >
-          <MenuItem onClick={this.share}>
-            <ListItemIcon children={<ShareIcon />} />
-            <ListItemText children="Partager ce canal" />
-          </MenuItem>
-          <MenuItem onClick={this.clearAll}>
-            <ListItemIcon children={<ClearAllIcon />} />
-            <ListItemText children='Tout effacer' />
-          </MenuItem>
-          <MenuItem onClick={this.quit}>
-            <ListItemIcon children={<CloseIcon />} />
-            <ListItemText children="Quitter ce canal" />
-          </MenuItem>
-        </Menu>
-      </>
-    );
+    return <Menu
+      disableAutoFocusItem
+      anchorEl={this.state.anchor}
+      open={Boolean(this.state.anchor)}
+      onClose={this.close}>
+      <MenuItem onClick={this.share}>
+        <ListItemIcon children={<ShareIcon />} />
+        <ListItemText children="Partager ce canal" />
+      </MenuItem>
+      <MenuItem onClick={this.mute}>
+        <ListItemIcon children={<MuteIcon />} />
+        {(Data.muted.includes(this.state.channel)) ? (
+          <ListItemText children="Activer les notifications" />
+        ):(
+          <ListItemText children="Désactiver les notifications" />
+        )}
+      </MenuItem>
+      <MenuItem onClick={this.clearAll}>
+        <ListItemIcon children={<ClearAllIcon />} />
+        <ListItemText children='Tout effacer' />
+      </MenuItem>
+      <MenuItem onClick={this.quit}>
+        <ListItemIcon children={<CloseIcon />} />
+        <ListItemText children="Quitter ce canal" />
+      </MenuItem>
+    </Menu>
   }
 }
 

@@ -39,7 +39,7 @@ export default class extends React.Component{
   render(){
     return <MuiThemeProvider theme={Themes[this.state.theme]}>
       <CssBaseline/>
-      {(Data.channel) ? (this.state.ready) ? (<>
+      {(Data.channel && !Data.newfag) ? (this.state.ready) ? (<>
         <InfoBar/>
         <Drawer />
         <Log />
