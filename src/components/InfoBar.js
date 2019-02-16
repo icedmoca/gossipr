@@ -25,9 +25,12 @@ export default class extends React.Component{
       color='primary'
       style={{ boxShadow: 'none' }}
       position="sticky">
-      <Toolbar style={{padding: '0 10px'}}  >
+      <Toolbar style={{padding: '0 10px', maxWidth: 1000, width: '100%', margin: 'auto'}}  >
         <Typography 
-          style={{flex: 1, textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', marginRight: 20}}
+          style={{
+            flex: 1, marginRight: 20, maxWidth: 1000,
+            textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap'
+          }}
           color="inherit" 
           variant="h6" 
           children={Data.channel}

@@ -80,7 +80,10 @@ export default class extends React.Component {
         <Typography
           children={channel}
           variant="h6"
-          style={{ cursor: 'pointer', flex: 1 }}
+          style={{ 
+            cursor: 'pointer', flex: 1, marginRight: 20,
+            textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' 
+          }}
           onClick={this.handleChannelClick(channel)}
         />
         <Typography variant='h6'>
@@ -123,59 +126,63 @@ export default class extends React.Component {
   }
 
   renderDrawer = () => <>
-    <ListItem>
-      <input
-        ref={this.refAvatarInput}
-        type="file"
-        accept="image/*"
-        style={{ display: "none" }}
-        onChange={this.handleAvatarUpload}
-      />
-      <Avatar
-        style={{background: (Data.theme !== 'light')?'white':null}}
-        onClick={this.handleAvatarClick}
-        src={window.data.avatars[Data.avatar]}
-        children={<AvatarIcon />}
-      />
-      <InputBase
-        defaultValue={Data.name}
-        onChange={this.changeName}
-        style={{
-          fontWeight: "bold",
-          fontSize: "20px",
-          flex: 1,
-          margin: "0 10px"
-        }}
-      />
-      <IconButton
-        onClick={this.openSettingsMenu}
-        children={<SettingsIcon />}
-      />
-      <IconButton onClick={this.close} children={<CloseIcon />} />
-    </ListItem>
-    <Divider />
-    <ListItem>
-      <TextField
-        style={{ flex: 1 }}
-        label="Rejoindre le canal"
-        inputRef={this.refNewChannel}
-        onKeyPress={(ev) => (ev.key === 'Enter') && this.joinNewChannel()}
-        helperText="Vous pouvez aussi en créer un nouveau"
-        InputProps={{
-          startAdornment: <InputAdornment position="start">#</InputAdornment>
-        }}
-      />
-      <IconButton
-        onClick={this.joinNewChannel}
-        children={<JoinIcon />}
-      />
-    </ListItem>
-    {Object.keys(window.data.peers).map(this.renderChannel)}
+    <List>
+      <ListItem>
+        <input
+          ref={this.refAvatarInput}
+          type="file"
+          accept="image/*"
+          style={{ display: "none" }}
+          onChange={this.handleAvatarUpload}
+        />
+        <Avatar
+          style={{background: (Data.theme !== 'light')?'white':null}}
+          onClick={this.handleAvatarClick}
+          src={window.data.avatars[Data.avatar]}
+          children={<AvatarIcon />}
+        />
+        <InputBase
+          defaultValue={Data.name}
+          onChange={this.changeName}
+          style={{
+            fontWeight: "bold",
+            fontSize: "20px",
+            flex: 1,
+            margin: "0 10px"
+          }}
+        />
+        <IconButton
+          onClick={this.openSettingsMenu}
+          children={<SettingsIcon />}
+        />
+        <IconButton onClick={this.close} children={<CloseIcon />} />
+      </ListItem>
+      <Divider />
+      <ListItem>
+        <TextField
+          style={{ flex: 1 }}
+          label="Rejoindre le canal"
+          inputRef={this.refNewChannel}
+          onKeyPress={(ev) => (ev.key === 'Enter') && this.joinNewChannel()}
+          helperText="Vous pouvez aussi en créer un nouveau"
+          InputProps={{
+            startAdornment: <InputAdornment position="start">#</InputAdornment>
+          }}
+        />
+        <IconButton
+          onClick={this.joinNewChannel}
+          children={<JoinIcon />}
+        />
+      </ListItem>
+    </List> 
+    <List style={{overflowY: 'scroll'}}>
+      {Object.keys(window.data.peers).map(this.renderChannel)}
+    </List> 
   </>
 
   render() {
     return <>
-      <Drawer anchor="right" onClose={this.close} open={this.state.open} children={this.renderDrawer()} />
+      <Drawer PaperProps={{style:{maxWidth: '100%'}}} anchor="right" onClose={this.close} open={this.state.open} children={this.renderDrawer()} />
       <SettingsMenu ref={this.refSettingsMenu} />
       <ChannelMenu ref={this.refChannelMenu} />
       <ShareDialog ref={this.refShareDialog} />

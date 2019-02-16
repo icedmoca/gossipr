@@ -16,6 +16,12 @@ export const dataURL = blob =>
     reader.readAsDataURL(blob);
   });
 
+const sanitize = (channel) => {
+  return unescape(channel)
+    .toLowerCase()
+    .replace(new RegExp(' ', 'g'), '-')
+}
+
 (async () => {
   window.data = { peers: {}, avatars: {}, id: null, node: null };
   console.log("Prepared storage data");
@@ -24,8 +30,11 @@ export const dataURL = blob =>
 
   if (window.Notification) window.Notification.requestPermission();
 
-  const channel = window.location.hash;
   const last = Data.channel;
+
+  const hash = window.location.hash
+  const channel = sanitize(window.location.hash);
+  if(channel !== hash) window.location.hash = channel
 
   if (channel !== last) {
     if(channel) Data.channel = channel
@@ -56,11 +65,13 @@ export const dataURL = blob =>
 })();
 
 window.onhashchange = async () => {
-  const channel = window.location.hash;
+  const hash = window.location.hash
+  const channel = sanitize(window.location.hash);
+  if(channel !== hash) return window.location.hash = channel
   if (channel) console.log("Switched to", channel);
   Data.channel = channel;
   window.app.setState({});
-  Node.refresh();
+  if(Node.ready) Node.refresh();
 };
 
 ReactDOM.render(<App />, document.getElementById("root"));

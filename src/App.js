@@ -30,8 +30,8 @@ export default class extends React.Component{
   closeSnackbar = () => this.snackbar(null)
 
   getTitle = () => {
-    if (!window.location.hash) return "Gossipr";
-    return window.location.hash + " - Gossipr";
+    if (!Data.channel) return "Gossipr";
+    return Data.channel + " - Gossipr";
   }
 
   switchTheme = () => {

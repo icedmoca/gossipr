@@ -86,17 +86,17 @@ export default class extends React.Component {
     return <AppBar 
     color="secondary"
     position='fixed'
-    style={{ top: 'auto', bottom: 0 }}>
+      style={{ top: 'auto', bottom: 0 }}>
     {(this.state.quote) && (
-      <Toolbar style={{paddingTop: 10}}>
+        <Toolbar style={{ paddingTop: 10, justifyContent: 'center'}}>
         <CloseIcon onClick={this.clearQuote}/>
         <ListItemText  
-            style={{ whiteSpace: 'pre-line' }}
-        primary={this.state.quote.data} 
-        secondary={"~" + this.state.quote.meta.name}/> 
+          style={{ flex: 1, maxWidth: 1000, whiteSpace: 'pre-line' }}
+          primary={this.state.quote.data} 
+          secondary={"~" + this.state.quote.meta.name}/> 
       </Toolbar>
     )}
-    <Toolbar style={{padding: '0 10px'}}>
+    <Toolbar style={{padding: '0 10px', maxWidth: 1000, width: '100%', margin: 'auto'}}>
         <IconButton 
           color='error'
           onClick={this.handleRecord}
@@ -116,7 +116,7 @@ export default class extends React.Component {
         />
         {(this.state.record)?(<>
           <CloseIcon onClick={this.clearValue}/>
-          <audio className='grow' controls>
+          <audio style={{flex: 1}} controls>
             <source src={this.state.dataURL}/>
           </audio>
         </>) : (<>
