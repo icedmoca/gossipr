@@ -18,6 +18,7 @@ import CloseIcon from "@material-ui/icons/Clear";
 import Snackbar from "@material-ui/core/Snackbar";
 import CircularProgress from '@material-ui/core/CircularProgress'
 import Typography from '@material-ui/core/Typography'
+import { Helmet } from "react-helmet";
 
 import Data from './Data'
 
@@ -27,6 +28,11 @@ export default class extends React.Component{
 
   snackbar = (message) => this.setState({ snackbar: message })
   closeSnackbar = () => this.snackbar(null)
+
+  getTitle = () => {
+    if (!window.location.hash) return "Gossipr";
+    return window.location.hash + " - Gossipr";
+  }
 
   switchTheme = () => {
     const themes = Object.keys(Themes)
@@ -38,6 +44,10 @@ export default class extends React.Component{
 
   render(){
     return <MuiThemeProvider theme={Themes[this.state.theme]}>
+      <Helmet>
+        <title children={this.getTitle()}/>
+        <meta name="theme-color" content={Themes[this.state.theme].palette.background.default} />
+      </Helmet>
       <CssBaseline/>
       {(Data.channel && !Data.newfag) ? (this.state.ready) ? (<>
         <InfoBar/>

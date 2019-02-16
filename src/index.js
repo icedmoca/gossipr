@@ -16,11 +16,6 @@ export const dataURL = blob =>
     reader.readAsDataURL(blob);
   });
 
-const updateTitle = () => {
-  if (!window.location.hash) document.title = "Gossipr";
-  else document.title = window.location.hash + " - Gossipr";
-};
-
 (async () => {
   window.data = { peers: {}, avatars: {}, id: null, node: null };
   console.log("Prepared storage data");
@@ -28,8 +23,6 @@ const updateTitle = () => {
   Messenger.register();
 
   if (window.Notification) window.Notification.requestPermission();
-
-  updateTitle();
 
   const channel = window.location.hash;
   const last = Data.channel;
@@ -66,7 +59,6 @@ window.onhashchange = async () => {
   const channel = window.location.hash;
   if (channel) console.log("Switched to", channel);
   Data.channel = channel;
-  updateTitle();
   window.app.setState({});
   Node.refresh();
 };
