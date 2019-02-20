@@ -54,7 +54,7 @@ export default {
     }
   }),
   red: createMuiTheme({
-    typography: { useNextVariant: true },
+    typography: { useNextVariants: true },
     palette: {
       primary: { main: '#b71c1c' },
       secondary: { main: '#c62828'},
