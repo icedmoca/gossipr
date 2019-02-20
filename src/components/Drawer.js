@@ -1,7 +1,7 @@
 import React from "react";
 
 import copy from "clipboard-copy";
-import QRCode from 'qrcode-react'
+import { QRCode } from 'react-qr-svg'
 
 import Drawer from "@material-ui/core/Drawer";
 import Divider from "@material-ui/core/Divider";
@@ -45,6 +45,7 @@ import InputAdornment from '@material-ui/core/InputAdornment'
 
 import Data from "../Data";
 import Node from '../Node'
+import Themes from '../Themes'
 import * as Messenger from "../Messenger";
 
 export default class extends React.Component {
@@ -74,16 +75,17 @@ export default class extends React.Component {
   };
 
   renderChannel = channel => {
+    const theme = window.app.getTheme()
     return (
       <ListItem
         key={channel}
-        style={{ background: Data.channel === channel ? "#8080801f" : null }}
+        style={{ background: Data.channel === channel ? window.app.getTheme().palette.secondary.main : null }}
         onContextMenu={this.openChannelMenu(channel)}>
         <Typography
           children={channel}
           variant="h6"
           style={{ 
-            cursor: 'pointer', flex: 1, marginRight: 20,
+            width: 0, cursor: 'pointer', flex: 1, marginRight: 20,
             textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' 
           }}
           onClick={this.handleChannelClick(channel)}
@@ -184,7 +186,7 @@ export default class extends React.Component {
 
   render() {
     return <>
-      <Drawer PaperProps={{style:{maxWidth: '100%'}}} anchor="right" onClose={this.close} open={this.state.open} children={this.renderDrawer()} />
+      <Drawer anchor="right" onClose={this.close} open={this.state.open} children={this.renderDrawer()} />
       <SettingsMenu ref={this.refSettingsMenu} />
       <ChannelMenu ref={this.refChannelMenu} />
       <ShareDialog ref={this.refShareDialog} />
@@ -201,6 +203,8 @@ class SettingsMenu extends React.Component {
   togglePinnedAtTop = () => {
     Data.pinnedAtTop = !Data.pinnedAtTop
     this.close()
+    const type = Data.pinnedAtTop ? 'en haut': 'normalement'
+    window.app.snackbar("Les messages épinglés s'affichent désormais "+type)
   }
 
   unblockAll = () => {
@@ -334,6 +338,7 @@ class ShareDialog extends React.Component{
   })
 
   render(){
+    const theme = window.app.getTheme()
     return <>
       <Dialog 
         fullWidth
@@ -343,7 +348,12 @@ class ShareDialog extends React.Component{
         <DialogContent>
           <List>
             <ListItem style={{ justifyContent: 'center' }}>
-              <QRCode size={256} value={this.href()} />
+              <QRCode 
+                bgColor={theme.palette.background.paper}
+                fgColor={theme.palette.type === 'dark' ? '#FFFFFF':'#000000'}
+                style={{ width: 256 }} 
+                value={this.href()} 
+              />
             </ListItem>
             <ListItem style={{justifyContent: 'center'}}>
               <TextField

@@ -6,7 +6,7 @@ export default {
     typography: { useNextVariants: true },
     palette: {
       primary: { main: '#ffffff'  },
-      secondary: { main: '#fafafa' },
+      secondary: { main: '#f5f5f5' },
       error: red,
       background: {
         paper: '#ffffff',
@@ -53,4 +53,17 @@ export default {
       },
     }
   }),
+  red: createMuiTheme({
+    typography: { useNextVariant: true },
+    palette: {
+      primary: { main: '#b71c1c' },
+      secondary: { main: '#c62828'},
+      error: red,
+      type: 'dark',
+      background: {
+        paper: '#b71c1c',
+        default: '#b71c1c'
+      }
+    }
+  })
 };

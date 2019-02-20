@@ -98,7 +98,6 @@ export default class extends React.Component {
     )}
     <Toolbar style={{padding: '0 10px', maxWidth: 1000, width: '100%', margin: 'auto'}}>
         <IconButton 
-          color='error'
           onClick={this.handleRecord}
           style={{width: 36, height: 36, padding: 0, marginRight: 5}}
           children={(this.state.recording)?(<RecordIcon/>):(<RecordNoneIcon/>)}

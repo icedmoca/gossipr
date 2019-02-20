@@ -34,6 +34,8 @@ export default class extends React.Component{
     return Data.channel + " - Gossipr";
   }
 
+  getTheme = () => Themes[this.state.theme]
+
   switchTheme = () => {
     const themes = Object.keys(Themes)
     const i = themes.indexOf(this.state.theme)
@@ -43,10 +45,10 @@ export default class extends React.Component{
   }
 
   render(){
-    return <MuiThemeProvider theme={Themes[this.state.theme]}>
+    return <MuiThemeProvider theme={this.getTheme()}>
       <Helmet>
         <title children={this.getTitle()}/>
-        <meta name="theme-color" content={Themes[this.state.theme].palette.background.default} />
+        <meta name="theme-color" content={this.getTheme().palette.background.default} />
       </Helmet>
       <CssBaseline/>
       {(Data.channel && !Data.newfag) ? (this.state.ready) ? (<>
