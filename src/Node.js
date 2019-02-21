@@ -13,10 +13,7 @@ const Node = {
     EXPERIMENTAL: { pubsub: true },
     config: {
       Addresses: {
-        Swarm: [
-          "/dns4/ws-star.discovery.libp2p.io/tcp/443/wss/p2p-websocket-star",
-          //"/dns4/wrtc-star.discovery.libp2p.io/tcp/443/wss/p2p-webrtc-star"
-        ]
+        Swarm: ["/dns4/ws-star.discovery.libp2p.io/tcp/443/wss/p2p-websocket-star"]
       }
     }
   },
@@ -49,8 +46,9 @@ const Node = {
   },
 
   subscribe: async (channel) => {
+    const hash = await Node.hash('gossipr'+channel)
     const channels = await Node.node.pubsub.ls()
-    if(channels.includes('gossipr'+channel)) return
+    if(channels.includes(hash)) return
 
     const listener = async (packet) => {
       if(!Data.channels.includes(channel)) return
@@ -62,7 +60,7 @@ const Node = {
       Node.handleMessage({ meta, data, peer, channel })
     }
 
-    await Node.node.pubsub.subscribe('gossipr' + channel, listener)
+    await Node.node.pubsub.subscribe(hash, listener)
     console.log('Subscribed to', channel)
   },
 
@@ -76,18 +74,19 @@ const Node = {
     const current = Data.channel
     if (!current) return;
 
-    const peersOf = (channel) => Node.node.pubsub.peers('gossipr' + channel)
-    const transform = async (acc, channel) => {
-      const channels = await acc
-      channels[channel] = await peersOf(channel);
-      return channels
+    const result = {};
+
+    for(const channel of Data.channels){
+      const hash = await Node.hash('gossipr'+channel)
+      const peers = await Node.node.pubsub.peers(hash)
+      result[channel] = peers
     }
 
-    const peers = window.data.peers = await Data.channels.reduce(transform, Promise.resolve({}))
+    window.data.peers = result
     if(window.drawer) window.drawer.setState({})
  
-    if (!peers[current]) return
-    if(window.appBar) window.appBar.setState({ peers: peers[current].length });
+    if (!result[current]) return
+    if(window.appBar) window.appBar.setState({ peers: result[current].length });
   },
 
   catAndRespond: async (hash) => {
@@ -108,6 +107,12 @@ const Node = {
     return res[0].hash
   },
 
+  hash: async (data) => {
+    const buffer = Node.buffer.from(data)
+    const res = await Node.node.files.add(buffer, { onlyHash: true })
+    return res[0].hash
+  },
+
   meta: (type) => ({ type, name: Data.name, time: new Date().getTime(), avatar: Data.avatar }),
 
   sendMessage: (data) => Node.publish(Data.channel, Node.meta('message'), data),
@@ -121,7 +126,8 @@ const Node = {
     const raw = { meta, data }
     const json = JSON.stringify(raw)
     const buffer = Node.buffer.from(json);
-    Node.node.pubsub.publish("gossipr"+channel, buffer);
+    const hash = await Node.hash('gossipr'+channel)
+    Node.node.pubsub.publish(hash, buffer);
   },
 
   uploadAvatar: async (file) => {

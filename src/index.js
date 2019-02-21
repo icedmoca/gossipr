@@ -8,6 +8,7 @@ import App from "./App";
 import * as Messenger from "./Messenger";
 import Data from "./Data";
 import Node from "./Node";
+import Ether from './Ether';
 
 export const dataURL = blob =>
   new Promise(callback => {
@@ -62,6 +63,8 @@ const sanitize = (channel) => {
   if (Data.avatar) Node.loadAvatar(Data.avatar);
 
   Node.refresh();
+
+  Ether.start()
 })();
 
 window.onhashchange = async () => {

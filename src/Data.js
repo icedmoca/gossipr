@@ -22,6 +22,9 @@ const Data = {
     localStorage.channel = value 
     if(window.location.hash !== value) window.location.hash = value
   },
+  
+  get wallet() { return localStorage.wallet },
+  set wallet(value) { localStorage.wallet = value },
 
   get multiline() { return localStorage.multiline === 'true' },
   set multiline(value) { return localStorage.multiline = value },
