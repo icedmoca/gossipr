@@ -140,7 +140,7 @@ const Message = ({msg}) => <ListItem
         .processSync(msg.data).contents
     }
     secondary={<>
-      <span>{"~" + msg.meta.name}</span>
+      <span>{Node.getName(msg.peer) || ("~" + msg.meta.name)}</span>
       <span style={{ float: "right" }}>
         {date.format(new Date(msg.meta.time), "HH:mm:ss")}
       </span>

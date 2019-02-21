@@ -24,10 +24,11 @@ const sanitize = (channel) => {
 }
 
 (async () => {
-  window.data = { peers: {}, avatars: {}, id: null, node: null };
+  window.data = { peers: {}, avatars: {}, names: [], id: null, node: null };
   console.log("Prepared storage data");
 
   Messenger.register();
+  Ether.start()
 
   if (window.Notification) window.Notification.requestPermission();
 
@@ -63,8 +64,6 @@ const sanitize = (channel) => {
   if (Data.avatar) Node.loadAvatar(Data.avatar);
 
   Node.refresh();
-
-  Ether.start()
 })();
 
 window.onhashchange = async () => {

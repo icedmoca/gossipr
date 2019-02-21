@@ -20,7 +20,8 @@
     "remark": "10.0.1",
     "remark-breaks": "1.0.2",
     "remark-images": "0.16.8",
-    "remark-react": "5.0.1"
+    "remark-react": "5.0.1",
+    "web3": "1.0.0-beta.46"
   },
   "devDependencies": {},
   "scripts": {

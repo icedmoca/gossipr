@@ -1,4 +1,5 @@
 import Data from './Data'
+import Ether from './Ether'
 import * as Messenger from './Messenger'
 
 const Node = {
@@ -143,6 +144,21 @@ const Node = {
     if (Data.blocked.includes(msg.peer)) return
     if (Data.channel === msg.channel && document.visibilityState === 'visible') return
     Messenger.notify(msg.channel, msg.data + '\n~' + msg.meta.name)
+  },
+
+  getName: (id) => {
+    if(window.data.names[id] === undefined) Node.loadName(id)
+    return window.data.names[id]
+  },
+
+  loadName: async (id) => {
+    if(!id) return
+    if(window.data.names[id] !== undefined) return
+    console.log('Loading '+id+' name')
+    window.data.names[id] = null
+    const name = await Ether.getName(id)
+    window.data.names[id] = name || null
+    if(window.logger) window.logger.setState({})
   },
 
   getAvatar: (hash) => {

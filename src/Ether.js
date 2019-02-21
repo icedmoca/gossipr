@@ -1,32 +1,44 @@
-import Data from './Data'
+import Web3 from 'web3'
 
 import {Names} from './Contracts'
 
 const Ether = {
 
+  addresses: {
+    Names: "0xe6d819633998d87927c7310f7f7154c6e3a1a00f"
+  },
+
   start: () => {
     window.ether = Ether;
 
-    //const web3 = Ether.web3 = new Web3("wss://kovan.infura.io/ws")
-    //const account = Ether.account = Ether.createAccount()
-   // Data.wallet = account.privateKey
+    if(window.ethereum){
+      Ether.web3 = new Web3(window.ethereum)
+      console.log('Using provided web3')
+    }
+    else {
+      Ether.web3 = new Web3("https://ropsten.infura.io/v3/1dc73859cf9b46398409a2cbe1c5af4b")
+      console.log('Using embedded web3')
+    }
 
-    //const names = new web3.eth.Contract(Names, "0xfc6ac09156617f612aa0505801890309a552f449")
-    //Ether.contracts = {names}
+    const names = new Ether.web3.eth.Contract(Names, Ether.addresses.Names)
+    Ether.contracts = {names}
   },
 
-  buyName: (name) => {
+  buyName: async (name) => {
     const id = window.data.id
     const method = Ether.execute('names', 'buyName')(id, name)
     Ether.send(method, "20")
   },
 
+  getName: (id) => Ether.execute('names', 'getName')(id).call(),
+
   execute: (contract, name) => Ether.contracts[contract].methods[name],
 
-  send: (method, price) => {
-    const from = Ether.account.address
+  send: async (method, price) => {
+    await window.ethereum.enable()
+    const accounts = await Ether.web3.eth.getAccounts()
     const value = Ether.web3.utils.toWei(price, "finney")
-    method.send({from, value})
+    method.send({ from: accounts[0], value})
   }
 }
 
