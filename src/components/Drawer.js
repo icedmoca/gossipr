@@ -29,6 +29,7 @@ import JoinIcon from '@material-ui/icons/Send'
 import BlockIcon from "@material-ui/icons/Block";
 import MuteIcon from '@material-ui/icons/NotificationsOff'
 import MultilineIcon from '@material-ui/icons/SubdirectoryArrowLeft'
+import CheckIcon from '@material-ui/icons/Check'
 
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
@@ -42,11 +43,13 @@ import DialogContent from '@material-ui/core/DialogContent';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import InputAdornment from '@material-ui/core/InputAdornment'
+import CircularProgress from '@material-ui/core/CircularProgress'
 
 import Data from "../Data";
 import Node from '../Node'
 import Themes from '../Themes'
 import * as Messenger from "../Messenger";
+import Ether from '../Ether'
 
 export default class extends React.Component {
   state = { open: false };
@@ -118,6 +121,7 @@ export default class extends React.Component {
   };
 
   refShareDialog = it => this.shareDialog = it
+  refBuyNameDialog = it => this.buyNameDialog = it
 
   refNewChannel = it => this.newChannel = it
   joinNewChannel = () => {
@@ -146,8 +150,9 @@ export default class extends React.Component {
           children={<AvatarIcon />}
         />
         <InputBase
-          defaultValue={Data.name}
+          defaultValue={Node.getName(window.data.id) || Data.name}
           onChange={this.changeName}
+          disabled={Boolean(Node.getName(window.data.id))}
           style={{
             fontWeight: "bold",
             fontSize: "20px",
@@ -190,6 +195,7 @@ export default class extends React.Component {
       <SettingsMenu ref={this.refSettingsMenu} />
       <ChannelMenu ref={this.refChannelMenu} />
       <ShareDialog ref={this.refShareDialog} />
+      <BuyNameDialog ref={this.refBuyNameDialog} />
     </>
   }
 }
@@ -202,14 +208,12 @@ class SettingsMenu extends React.Component {
 
   togglePinnedAtTop = () => {
     Data.pinnedAtTop = !Data.pinnedAtTop
-    this.close()
     const type = Data.pinnedAtTop ? 'en haut': 'normalement'
     window.app.snackbar("Les messages épinglés s'affichent désormais "+type)
   }
 
   unblockAll = () => {
     Data.blocked = []
-    this.close()
     window.app.snackbar('Tout le monde a été débloqué')
   }
 
@@ -218,12 +222,22 @@ class SettingsMenu extends React.Component {
     window.app.snackbar('Sauts de ligne '+((result)?'activés':'désactivés'))
   }
 
+  buyName = () => {
+    window.drawer.buyNameDialog.open()
+    this.close();
+  }
+
   render() {
     return <Menu
       disableAutoFocusItem
       anchorEl={this.state.anchor}
       open={Boolean(this.state.anchor)}
       onClose={this.close}>
+      <MenuItem onClick={this.buyName}>
+        <ListItemIcon children={<CheckIcon/>}/>
+        <ListItemText children='Valider mon pseudo'/>
+      </MenuItem>
+      <Divider/>
       <MenuItem onClick={this.theme}>
         <ListItemIcon children={<ThemeIcon />} />
         <ListItemText children="Changer de thème" />
@@ -234,8 +248,9 @@ class SettingsMenu extends React.Component {
       </MenuItem>
       <MenuItem onClick={this.toggleMultiline}>
         <ListItemIcon children={<MultilineIcon/>}/>
-        <ListItemText children='Sauts de ligne'/>
+        <ListItemText children={(Data.multiline?'Désactiver':'Activer')+' les sauts de ligne'}/>
       </MenuItem>
+      <Divider/>
       <MenuItem onClick={this.unblockAll}>
         <ListItemIcon children={<BlockIcon/>}/>
         <ListItemText children='Débloquer tout le monde'/>
@@ -366,6 +381,66 @@ class ShareDialog extends React.Component{
               <Button variant='outlined' onClick={this.copy} children='Copier' />
               {('share' in navigator) && <Button variant='outlined' onClick={this.share} children='Envoyer' />}
             </ListItem>
+          </List>
+        </DialogContent>
+      </Dialog>
+    </>
+  }
+}
+
+class BuyNameDialog extends React.Component{
+  state={open: false, loading: false}
+  open = () => this.setState({open: true})
+  close = () => this.setState({open: false})
+
+  refNameInput = it => this.nameInput = it
+
+  buy = async () => {
+    try{ 
+      this.setState({ loading: true })
+      await Ether.buyName(this.nameInput.value) 
+      window.app.snackbar('Transaction validée avec succès')
+      await Node.loadName(window.data.id)
+      this.setState({ open: false, loading: false })
+      window.drawer.close()
+    }
+    catch(ex){ 
+      window.app.snackbar(ex.message) 
+      this.setState({loading: false})
+    }
+  }
+
+  render(){
+    return <>
+      <Dialog 
+        fullWidth
+        open={this.state.open}
+        onClose={this.close}>
+        <DialogTitle children={'Faites un don, obtenez un nom'} />
+        <DialogContent>
+          <List>
+            <ListItem style={{ justifyContent: 'center' }}>
+              <Typography children={'Faites un don à Gossipr et obtenez un pseudo unique, pour seulement 20 milliethers (soit environ 2.7€)'}/>
+            </ListItem>
+            <ListItem style={{justifyContent: 'center'}}>
+              <TextField 
+                label={'Mon pseudo'}
+                //helperText={'Vous ne pourrez plus le changer'}
+                inputRef={this.refNameInput}
+                defaultValue={Data.name} 
+              />
+            </ListItem>
+            <ListItem style={{justifyContent: 'space-around'}}>{
+              (this.state.loading) ? (
+                <Typography>
+                  <CircularProgress color='inherit'/>
+                </Typography>
+              ) : (window.ethereum) ? (
+                <Button variant='outlined' onClick={this.buy} children='Valider mon pseudo' />
+              ):(
+                <Typography children={"Vous devez avoir un navigateur compatible pour procéder à la transaction, installez l'extension Metamask si vous utilisez Chrome ou Firefox"} />
+              )
+            }</ListItem>
           </List>
         </DialogContent>
       </Dialog>

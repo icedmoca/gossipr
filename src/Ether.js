@@ -22,12 +22,14 @@ const Ether = {
 
     const names = new Ether.web3.eth.Contract(Names, Ether.addresses.Names)
     Ether.contracts = {names}
+
+
   },
 
-  buyName: async (name) => {
+  buyName: (name) => {
     const id = window.data.id
     const method = Ether.execute('names', 'buyName')(id, name)
-    Ether.send(method, "20")
+    return Ether.send(method, "20")
   },
 
   getName: (id) => Ether.execute('names', 'getName')(id).call(),
@@ -38,7 +40,7 @@ const Ether = {
     await window.ethereum.enable()
     const accounts = await Ether.web3.eth.getAccounts()
     const value = Ether.web3.utils.toWei(price, "finney")
-    method.send({ from: accounts[0], value})
+    return await method.send({ from: accounts[0], value})
   }
 }
 

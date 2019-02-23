@@ -153,7 +153,6 @@ const Node = {
 
   loadName: async (id) => {
     if(!id) return
-    if(window.data.names[id] !== undefined) return
     console.log('Loading '+id+' name')
     window.data.names[id] = null
     const name = await Ether.getName(id)
