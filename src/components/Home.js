@@ -24,6 +24,7 @@ import Button from '@material-ui/core/Button'
 import AppBar from '@material-ui/core/AppBar'
 
 import Data from '../Data'
+import Lang from '../Lang'
 
 export default class extends React.Component {
   componentDidMount(){ window.home = this }
@@ -57,22 +58,22 @@ export default class extends React.Component {
             <img src={logo} />
           </ListItem>
           <ListItem style={{justifyContent: 'center'}}>
-            <Typography style={{ textAlign: 'center'}} variant="h3" children={"Oubliez les IRC et les forums"}/>
+            <Typography style={{ textAlign: 'center'}} variant="h3" children={Lang().home_page.title}/>
           </ListItem>
           <ListItem style={{justifyContent: 'center'}}>
             <Typography style={{ textAlign: 'center' }} variant="h6" 
-              children={"Parlez avec vos amis ou avec des inconnus, sans intermédiaire, sans installation, et sans inscription"} 
+              children={Lang().home_page.text} 
             />
           </ListItem>
           <ListItem style={{justifyContent: 'center'}} >
             <TextField 
               id="channelInput"
               style={{flex: 1, maxWidth: 300}}
-              label="Rejoindre le canal"
+              label={Lang().join_channel}
               defaultValue={Data.channel.substr(1) || 'main'}
               inputRef={(it) => this.input = it}
               onKeyPress={(e) => (e.key === 'Enter') && this.handleJoin()}
-              helperText="Vous pouvez aussi en créer un nouveau"
+              helperText={Lang().join_channel_hint}
               InputProps={{
                 startAdornment: <InputAdornment position="start">#</InputAdornment>
               }}
@@ -103,23 +104,22 @@ class PinDialog extends React.Component{
       <Dialog
         open={this.state.open}
         onClose={this.handleClose}>
-        <DialogTitle children="Devenez un fournisseur"/>
+        <DialogTitle children={Lang().pin_dialog.title}/>
         <DialogContent>
           <DialogContentText>
-            L'application est stockée sur un réseau de pair-à-pair nommé IPFS.<br/>
-            Stockez l'application sur votre ordinateur, et permettez aux personnes proche de chez vous d'y accéder plus rapidement.
+            {Lang().pin_dialog.text1}<br/>{Lang().pin_dialog.text2}
           {(!window.ipfs) && (<>
-            <br/><br/>Vous avez besoin d'installer un noeud IPFS sur votre ordinateur:<br/>
-            <Button style={{ margin: 5}} variant="outlined" children='Noeud IPFS' 
+            <br/><br/>{Lang().pin_dialog.install}<br/>
+            <Button style={{ margin: 5}} variant="outlined" children={Lang().pin_dialog.ipfs_node}
             onClick={this.handleClickDesktop} />
-            <Button style={{ margin: 5}} variant="outlined" children='Extension pour navigateur' 
-                  onClick={this.handleClickExtension} />
+            <Button style={{ margin: 5}} variant="outlined" children={Lang().pin_dialog.browser_addon}
+            onClick={this.handleClickExtension} />
           </>)}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button children='Fermer' onClick={this.handleClose}  />
-          {(window.ipfs) && (<Button children='Épingler' onClick={this.handlePin} />)}
+          <Button children={Lang().close} onClick={this.handleClose}  />
+          {(window.ipfs) && (<Button children={Lang().pin_dialog.pin} onClick={this.handlePin} />)}
         </DialogActions>
       </Dialog>
     )

@@ -7,6 +7,9 @@ const Data = {
   get newfag() { return localStorage.newfag !== 'false' },
   set newfag(value) { localStorage.newfag = value },
 
+  get lang() { return localStorage.lang || navigator.language.split('-')[0] },
+  set lang(value) { localStorage.lang = value },
+
   get avatar() { return localStorage.avatar || '' },
   set avatar(hash) { (async () => {
     localStorage.avatar = hash

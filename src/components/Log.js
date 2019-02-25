@@ -25,6 +25,8 @@ import RemarkBreaks from 'remark-breaks'
 import Data from '../Data'
 import Node from '../Node'
 
+import Lang from '../Lang'
+
 const Paragraph = ({children}) => <div children={children} style={{marginBlockStart: '1em'}}/>
 const Blockquote = ({children}) => 
   <blockquote children={children} 
@@ -41,7 +43,7 @@ export default class extends React.Component {
     blocked.push(peer);
     Data.blocked = blocked
     this.state.menuAnchor = null
-    window.app.snackbar('Cet utilisateur a été bloqué')
+    window.app.snackbar(Lang().message_menu.blocked)
   }
 
   handleMessageClick = (ev, msg) => this.setState({ menuAnchor: ev.target, clickedMessage: msg })
@@ -91,9 +93,9 @@ export default class extends React.Component {
         <div style={{ float: "left", clear: "both" }} ref={it => this.end = it }/>
         {(this.state.tooltip) && (
           <div style={{paddingLeft: 16, paddingRight: 16, textAlign: 'center'}}>
-            <Typography variant='h5' children={'Bienvenue sur le canal ' + Data.channel}/>
-            <Typography variant='subtitle1' children={'Commencez par envoyer un message 😉'} />
-            <Typography variant='subtitle1' children={'(ou bien restez muet 🙊)'} />
+            <Typography variant='h5' children={Lang().welcome_message.title(Data.channel)}/>
+            <Typography variant='subtitle1' children={Lang().welcome_message.text1} />
+            <Typography variant='subtitle1' children={Lang().welcome_message.text2} />
           </div>
         )}
         <Menu
@@ -104,16 +106,16 @@ export default class extends React.Component {
         >
           <MenuItem onClick={this.handleQuote}>
             <ListItemIcon children={<QuoteIcon/>} />
-            <ListItemText inset primary="Citer" />
+            <ListItemText inset primary={Lang().message_menu.quote} />
           </MenuItem>
           <MenuItem onClick={this.handlePin}>
             <ListItemIcon children={<SaveIcon/>} />
-            <ListItemText inset primary={(this.state.clickedMessage && this.state.clickedMessage.pinned)?'Désépingler':"Épingler"} />
+            <ListItemText inset primary={Lang().message_menu.pin(this.state.clickedMessage && this.state.clickedMessage.pinned)} />
           </MenuItem>
           {(this.state.clickedMessage) && (this.state.clickedMessage.peer !== window.data.id) && (
             <MenuItem onClick={this.handleBlock}>
               <ListItemIcon children={<BlockIcon />} />
-              <ListItemText inset primary="Bloquer" />
+              <ListItemText inset primary={Lang().message_menu.block} />
             </MenuItem>
           )}
         </Menu>

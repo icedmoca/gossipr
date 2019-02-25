@@ -74,27 +74,34 @@ contract Ownable {
 contract Names is Ownable {
 
   mapping(string => string) private names;
+  mapping(string => bool) private used;
 
   event NameChanged(string _peerId, string _name);
   event PriceChanged(uint _price);
 
-  uint public price = 20 finney;
+  uint public price = 10 finney;
 
-  function getName(string _peerId) public view returns(string) {
+  function getName(string memory _peerId) public view returns (string memory) {
     return names[_peerId];
   }
+  
+  function isUsed(string memory _name) public view returns (bool) {
+    return used[_name];
+  }
 
-  function _setName(string _peerId, string _name) private  {
+  function _setName(string memory _peerId, string memory _name) private  {
+    require(!isUsed(_name));
+    used[_name] = true;
     names[_peerId] = _name;
     emit NameChanged(_peerId, _name);
   }
 
-  function buyName(string _peerId, string _name) public payable {
+  function buyName(string memory _peerId, string memory _name) public payable {
     require(msg.value == price);
     _setName(_peerId, _name);
   }
 
-  function setName(string _peerId, string _name) public onlyOwner {
+  function setName(string memory _peerId, string memory _name) public onlyOwner {
     _setName(_peerId, _name);
   }
 

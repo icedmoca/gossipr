@@ -19,6 +19,8 @@ import InstallIcon from '@material-ui/icons/GetApp'
 import CloseIcon from '@material-ui/icons/Clear'
 import icon from '../shareicon.png'
 
+import Lang from '../Lang'
+
 const isInstalled = (window.matchMedia('(display-mode: standalone)').matches) || (window.navigator.standalone);
 const isiOS = ['iPhone', 'iPad', 'iPod'].includes(navigator.platform)
 
@@ -35,9 +37,7 @@ export default class extends React.Component {
         style={{ justifyContent: 'space-between' }}
       >
         <img alt="install-icon" src={icon} style={{ width: '24px' }} />
-        <Typography variant="h7">
-          Ajoutez Gossipr à l'écran d'accueil
-        </Typography>
+        <Typography variant="h7" children={Lang().install_prompt} />
         <CloseIcon onClick={() => this.setState({ active: false })} />
       </Toolbar>
     </AppBar>

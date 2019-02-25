@@ -1,45 +1,46 @@
 import Web3 from 'web3'
+import Fortmatic from 'fortmatic';
 
 import {Names} from './Contracts'
 
 const Ether = {
 
-  addresses: {
-    Names: "0xe6d819633998d87927c7310f7f7154c6e3a1a00f"
-  },
+  contracts: {},
 
   start: () => {
     window.ether = Ether;
 
-    if(window.ethereum){
-      Ether.web3 = new Web3(window.ethereum)
+    if(window.ethereum || window.web3){
+      Ether.web3 = new Web3(window.ethereum || window.web3.currentProvider)
       console.log('Using provided web3')
     }
     else {
-      Ether.web3 = new Web3("https://ropsten.infura.io/v3/1dc73859cf9b46398409a2cbe1c5af4b")
-      console.log('Using embedded web3')
+      Ether.web3 = new Web3(new Fortmatic("pk_live_58FBE3DFFA91CE74").getProvider())
+      console.log('Using fortmatic web3')
     }
 
-    const names = new Ether.web3.eth.Contract(Names, Ether.addresses.Names)
+    const names = new Ether.web3.eth.Contract(Names, "0xf01b73d433870b5b99e786643d4e96219a585799")
     Ether.contracts = {names}
-
-
   },
 
-  buyName: (name) => {
+  getPrice: () => Ether.execute('names', 'price')().call(),
+
+  buyName: async (name) => {
     const id = window.data.id
+    const price = await Ether.getPrice()
     const method = Ether.execute('names', 'buyName')(id, name)
-    return Ether.send(method, "20")
+    return Ether.send(method, price)
   },
 
   getName: (id) => Ether.execute('names', 'getName')(id).call(),
 
+  isUsed: (name) => Ether.execute('names', 'isUsed')(name).call(),
+
   execute: (contract, name) => Ether.contracts[contract].methods[name],
 
-  send: async (method, price) => {
-    await window.ethereum.enable()
+  send: async (method, value) => {
+    if(window.ethereum) await window.ethereum.enable()
     const accounts = await Ether.web3.eth.getAccounts()
-    const value = Ether.web3.utils.toWei(price, "finney")
     return await method.send({ from: accounts[0], value})
   }
 }

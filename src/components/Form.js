@@ -19,6 +19,7 @@ import { dataURL } from '../index'
 import * as Messenger from '../Messenger'
 import Data from '../Data'
 import Node from '../Node'
+import Lang from '../Lang'
 
 export default class extends React.Component {
   state = { recording: false, record: null, dataURL: null, value: '', quote: null }
@@ -125,7 +126,7 @@ export default class extends React.Component {
             multiline={Data.multiline}
             rowsMax="10"
             style={{flex: 1, margin: '0 10px 0 0'}}
-            placeholder="Tapez un message"
+            placeholder={Lang().type_message}
             value={this.state.value}
             onFocus={this.handleFocus}
             onChange={this.handleInputChange}

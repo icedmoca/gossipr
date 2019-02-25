@@ -50,6 +50,7 @@ import Node from '../Node'
 import Themes from '../Themes'
 import * as Messenger from "../Messenger";
 import Ether from '../Ether'
+import Lang from '../Lang'
 
 export default class extends React.Component {
   state = { open: false };
@@ -170,10 +171,10 @@ export default class extends React.Component {
       <ListItem>
         <TextField
           style={{ flex: 1 }}
-          label="Rejoindre le canal"
+          label={Lang().join_channel}
           inputRef={this.refNewChannel}
           onKeyPress={(ev) => (ev.key === 'Enter') && this.joinNewChannel()}
-          helperText="Vous pouvez aussi en créer un nouveau"
+          helperText={Lang().join_channel_hint}
           InputProps={{
             startAdornment: <InputAdornment position="start">#</InputAdornment>
           }}
@@ -207,19 +208,18 @@ class SettingsMenu extends React.Component {
   theme = () => window.app.switchTheme();
 
   togglePinnedAtTop = () => {
-    Data.pinnedAtTop = !Data.pinnedAtTop
-    const type = Data.pinnedAtTop ? 'en haut': 'normalement'
-    window.app.snackbar("Les messages épinglés s'affichent désormais "+type)
+    const result = Data.pinnedAtTop = !Data.pinnedAtTop
+    window.app.snackbar(Lang().settings_menu.pinned_at_top_toggled(result))
   }
 
   unblockAll = () => {
     Data.blocked = []
-    window.app.snackbar('Tout le monde a été débloqué')
+    window.app.snackbar(Lang().settings_menu.unblocked_all)
   }
 
   toggleMultiline = () => {
     const result = Data.multiline = !Data.multiline
-    window.app.snackbar('Sauts de ligne '+((result)?'activés':'désactivés'))
+    window.app.snackbar(Lang().settings_menu.multiline_toggled(result))
   }
 
   buyName = () => {
@@ -235,25 +235,25 @@ class SettingsMenu extends React.Component {
       onClose={this.close}>
       <MenuItem onClick={this.buyName}>
         <ListItemIcon children={<CheckIcon/>}/>
-        <ListItemText children='Valider mon pseudo'/>
+        <ListItemText children={Lang().settings_menu.check_my_name}/>
       </MenuItem>
       <Divider/>
       <MenuItem onClick={this.theme}>
         <ListItemIcon children={<ThemeIcon />} />
-        <ListItemText children="Changer de thème" />
+        <ListItemText children={Lang().settings_menu.switch_theme} />
       </MenuItem>
       <MenuItem onClick={this.togglePinnedAtTop}>
         <ListItemIcon children={<SaveIcon/>}/>
-        <ListItemText children='Épinglés en haut'/>
+        <ListItemText children={Lang().settings_menu.pinned_at_top}/>
       </MenuItem>
       <MenuItem onClick={this.toggleMultiline}>
         <ListItemIcon children={<MultilineIcon/>}/>
-        <ListItemText children={(Data.multiline?'Désactiver':'Activer')+' les sauts de ligne'}/>
+        <ListItemText children={Lang().settings_menu.multiline(Data.multiline)}/>
       </MenuItem>
       <Divider/>
       <MenuItem onClick={this.unblockAll}>
         <ListItemIcon children={<BlockIcon/>}/>
-        <ListItemText children='Débloquer tout le monde'/>
+        <ListItemText children={Lang().settings_menu.unblock_all}/>
       </MenuItem>
     </Menu>
   }
@@ -271,7 +271,7 @@ class ChannelMenu extends React.Component {
 
   quit = () => {
     if(this.state.channel === Data.channel)
-      return window.app.snackbar('Allez dans un autre canal avant de quitter celui-ci')
+      return window.app.snackbar(Lang().channel_menu.quit_switch_before)
     Node.unsubscribe(this.state.channel)
     Node.refreshPeers()
     this.clear()
@@ -285,7 +285,7 @@ class ChannelMenu extends React.Component {
 
   clearAll = () => {
     this.clear()
-    window.app.snackbar('Tous les messages ont été effacés')
+    window.app.snackbar(Lang().channel_menu.cleared_all)
     this.close()
   }
 
@@ -293,11 +293,11 @@ class ChannelMenu extends React.Component {
     const {channel} = this.state
     if(Data.muted.includes(channel)){
       Data.muted = Data.muted.filter(it => it !== channel)
-      window.app.snackbar("Ce canal n'est plus en sourdine")
+      window.app.snackbar(Lang().channel_menu.silent_toggled(false))
     }
     else {
       Data.muted = [channel, ...Data.muted]
-      window.app.snackbar("Ce canal est désormais en sourdine")
+      window.app.snackbar(Lang().channel_menu.silent_toggled(true))
     }
   }
 
@@ -309,23 +309,23 @@ class ChannelMenu extends React.Component {
       onClose={this.close}>
       <MenuItem onClick={this.share}>
         <ListItemIcon children={<ShareIcon />} />
-        <ListItemText children="Partager ce canal" />
+        <ListItemText children={Lang().channel_menu.share} />
       </MenuItem>
       <MenuItem onClick={this.mute}>
         <ListItemIcon children={<MuteIcon />} />
         {(Data.muted.includes(this.state.channel)) ? (
-          <ListItemText children="Activer les notifications" />
+          <ListItemText children={Lang().channel_menu.silent(true)} />
         ):(
-          <ListItemText children="Désactiver les notifications" />
+          <ListItemText children={Lang().channel_menu.silent(false)} />
         )}
       </MenuItem>
       <MenuItem onClick={this.clearAll}>
         <ListItemIcon children={<ClearAllIcon />} />
-        <ListItemText children='Tout effacer' />
+        <ListItemText children={Lang().channel_menu.clear_all} />
       </MenuItem>
       <MenuItem onClick={this.quit}>
         <ListItemIcon children={<CloseIcon />} />
-        <ListItemText children="Quitter ce canal" />
+        <ListItemText children={Lang().channel_menu.quit} />
       </MenuItem>
     </Menu>
   }
@@ -343,12 +343,12 @@ class ShareDialog extends React.Component{
 
   copy = () => {
     copy(this.href())
-    window.app.snackbar("L'adresse a été copiée")
+    window.app.snackbar(Lang().channel_share_dialog.copied)
   }
 
   share = () => navigator.share({
     title: document.title,
-    text: 'Viens discuter avec moi sur '+this.state.channel,
+    text: Lang().channel_share_dialog.copy_message(this.state.channel),
     url: window.location.href,
   })
 
@@ -359,7 +359,7 @@ class ShareDialog extends React.Component{
         fullWidth
         open={this.state.open}
         onClose={this.close}>
-        <DialogTitle children={'Amenez du monde sur le canal '+this.state.channel} />
+        <DialogTitle children={Lang().channel_share_dialog.title(this.state.channel)} />
         <DialogContent>
           <List>
             <ListItem style={{ justifyContent: 'center' }}>
@@ -378,8 +378,8 @@ class ShareDialog extends React.Component{
               />
             </ListItem>
             <ListItem style={{justifyContent: 'space-around'}}>
-              <Button variant='outlined' onClick={this.copy} children='Copier' />
-              {('share' in navigator) && <Button variant='outlined' onClick={this.share} children='Envoyer' />}
+              <Button variant='outlined' onClick={this.copy} children={Lang().copy} />
+              {('share' in navigator) && <Button variant='outlined' onClick={this.share} children={Lang().send} />}
             </ListItem>
           </List>
         </DialogContent>
@@ -397,9 +397,13 @@ class BuyNameDialog extends React.Component{
 
   buy = async () => {
     try{ 
+      const name = this.nameInput.value
+      if(name.trim() !== name) throw new Error(Lang().check_my_name.err_spaces);
+      if(await Ether.isUsed(name)) throw new Error(Lang().check_my_name.err_used);
+
       this.setState({ loading: true })
-      await Ether.buyName(this.nameInput.value) 
-      window.app.snackbar('Transaction validée avec succès')
+      await Ether.buyName(name) 
+      window.app.snackbar(Lang().check_my_name.checked)
       await Node.loadName(window.data.id)
       this.setState({ open: false, loading: false })
       window.drawer.close()
@@ -416,16 +420,15 @@ class BuyNameDialog extends React.Component{
         fullWidth
         open={this.state.open}
         onClose={this.close}>
-        <DialogTitle children={'Faites un don, obtenez un nom'} />
+        <DialogTitle children={Lang().check_my_name.title} />
         <DialogContent>
           <List>
             <ListItem style={{ justifyContent: 'center' }}>
-              <Typography children={'Faites un don à Gossipr et obtenez un pseudo unique, pour seulement 20 milliethers (soit environ 2.7€)'}/>
+              <Typography children={Lang().check_my_name.text('10 milliethers', '1.20€ / 1.40$')}/>
             </ListItem>
             <ListItem style={{justifyContent: 'center'}}>
               <TextField 
-                label={'Mon pseudo'}
-                //helperText={'Vous ne pourrez plus le changer'}
+                label={Lang().check_my_name.my_name}
                 inputRef={this.refNameInput}
                 defaultValue={Data.name} 
               />
@@ -435,10 +438,8 @@ class BuyNameDialog extends React.Component{
                 <Typography>
                   <CircularProgress color='inherit'/>
                 </Typography>
-              ) : (window.ethereum) ? (
-                <Button variant='outlined' onClick={this.buy} children='Valider mon pseudo' />
-              ):(
-                <Typography children={"Vous devez avoir un navigateur compatible pour procéder à la transaction, installez l'extension Metamask si vous utilisez Chrome ou Firefox"} />
+              ) : (
+                <Button variant='outlined' onClick={this.buy} children={Lang().check_my_name.check} />
               )
             }</ListItem>
           </List>

@@ -156,6 +156,7 @@ const Node = {
     console.log('Loading '+id+' name')
     window.data.names[id] = null
     const name = await Ether.getName(id)
+    if(name.trim() !== name) return
     window.data.names[id] = name || null
     if(window.logger) window.logger.setState({})
   },

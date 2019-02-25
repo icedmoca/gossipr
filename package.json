@@ -11,6 +11,7 @@
     "clipboard-copy": "2.0.1",
     "date-and-time": "0.6.3",
     "file-type": "10.7.1",
+    "fortmatic": "0.4.0",
     "react": "16.8.1",
     "react-dom": "16.8.1",
     "react-helmet": "5.2.0",
