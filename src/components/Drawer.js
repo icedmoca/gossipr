@@ -30,6 +30,7 @@ import BlockIcon from "@material-ui/icons/Block";
 import MuteIcon from '@material-ui/icons/NotificationsOff'
 import MultilineIcon from '@material-ui/icons/SubdirectoryArrowLeft'
 import CheckIcon from '@material-ui/icons/Check'
+import HomeIcon from '@material-ui/icons/Home'
 
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
@@ -233,6 +234,10 @@ class SettingsMenu extends React.Component {
       anchorEl={this.state.anchor}
       open={Boolean(this.state.anchor)}
       onClose={this.close}>
+      <MenuItem onClick={() => window.location.hash = ''}>
+        <ListItemIcon children={<HomeIcon/>}/>
+        <ListItemText children={Lang().settings_menu.go_home}/>
+      </MenuItem>
       <MenuItem onClick={this.buyName}>
         <ListItemIcon children={<CheckIcon/>}/>
         <ListItemText children={Lang().settings_menu.check_my_name}/>

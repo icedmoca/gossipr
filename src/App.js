@@ -58,7 +58,9 @@ export default class extends React.Component{
         <Form />
       </>) : (<Typography style={{display: 'flex', justifyContent: 'center'}}>
           <CircularProgress style={{position: 'absolute', top: '40%'}} size={120} color='inherit' />
-      </Typography>):(<Home/>)}
+      </Typography>):(
+        <Home theme={this.getTheme()} />
+      )}
       <Snackbar
         color="inherit"
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}

@@ -17,7 +17,7 @@ const Data = {
     window.drawer.setState({})
   })() },
 
-  get theme() { return localStorage.theme || "light" },
+  get theme() { return localStorage.theme || "navy" },
   set theme(value) { localStorage.theme = value },
 
   get channel() { return localStorage.channel || "" },

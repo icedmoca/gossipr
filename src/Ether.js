@@ -19,7 +19,7 @@ const Ether = {
       console.log('Using fortmatic web3')
     }
 
-    const names = new Ether.web3.eth.Contract(Names, "0xf01b73d433870b5b99e786643d4e96219a585799")
+    const names = new Ether.web3.eth.Contract(Names, "0xfacec0c2ab6102e031c8fc13734a897766358643")
     Ether.contracts = {names}
   },
 
@@ -31,6 +31,8 @@ const Ether = {
     const method = Ether.execute('names', 'buyName')(id, name)
     return Ether.send(method, price)
   },
+
+  getOwner: (id) => Ether.execute('names', 'getOwner')(id).call(),
 
   getName: (id) => Ether.execute('names', 'getName')(id).call(),
 

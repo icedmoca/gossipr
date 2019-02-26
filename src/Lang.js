@@ -10,8 +10,22 @@ const Langs = {
     copy: 'Copier',
     send: 'Envoyer',
     home_page: {
-      title: "Oubliez les chats et les forums",
+      title: "Oubliez les groupes de chats et les forums",
       text: "Parlez avec vos amis ou avec des inconnus, sans intermédiaire, sans installation, et sans inscription",
+      first: {
+        title: 'Simple.',
+        text1: "Parfois, vous avez besoin d'envoyer un texte, une photo, ou un fichier à une personne à côté de vous, sans vous prendre la tête.",
+        text2: "Gossipr est la manière la plus simple de parler rapidement, vous avez juste à rejoindre le même canal et vous pouvez commencer à parler.",
+      },
+      second: {
+        title: 'Communautés.',
+        text: "Quand vous organisez un événement, vous pouvez interagir avec votre communauté en envoyant des messages, des photos, des fichiers... sans que les gens aie toute une démarche d'inscription, d'installation, ou de demande d'accès à réaliser.",
+      },
+      third: {
+        title: 'Accessible.',
+        text1: "Gossipr vous permet de parler avec n'importe qui, seulement avec une adresse web.",
+        text2: "Par exemple, vous pouvez imprimer un QR code vers l'adresse d'un canal et le coller sur un mur, toutes les personnes qui le scanneront pourrons parler avec vous, sans installation !",
+      },
     },
     pin_dialog: {
       title: "Devenez un fournisseur",
@@ -21,6 +35,7 @@ const Langs = {
       ipfs_node: "Noeud IPFS",
       browser_addon: "Extension pour navigateur",
       pin: 'Épingler',
+      pinned: "L'application a été épinglée avec succès",
     },
     welcome_message: {
       title: (channel) => "Bienvenue sur le canal "+channel,
@@ -34,6 +49,7 @@ const Langs = {
       blocked: "Cet utilisateur a été bloqué",
     },
     settings_menu: {
+      go_home: "Revenir à la page d'accueil",
       check_my_name: "Valider mon pseudo",
       switch_theme: "Changer de thème",
       pinned_at_top: "Épinglés en haut",
@@ -76,8 +92,22 @@ const Langs = {
     copy: 'Copy',
     send: 'Send',
     home_page: {
-      title: "Forget about chats and forums",
+      title: "Forget about group chats and forums.",
       text: "Chat with your friends or with strangers, without middleman or third party, without installation, and without registration",
+      first: {
+        title: 'Simple.',
+        text1: "Sometimes you need to send a text, photo, or file to a person next to you, without any hassle.",
+        text2: "Gossipr is the easiest way to talk quickly, you just have to join the same channel and you can start talking.",
+      },
+      second: {
+        title: 'Communities.',
+        text: "When you organize an event, you can interact with your community by sending messages, photos, files... without people having to go through a whole registration, installation, or access request process.",
+      },
+      third: {
+        title: 'Linkable.',
+        text1: 'Gossipr allows you to talk with anyone, only with a web address.',
+        text2: 'For example, you can print a QR code to a channel address and stick it on a wall, anyone who scans it can talk to you, without installation!',
+      },
     },
     pin_dialog: {
       title: "Become a provider",
@@ -87,6 +117,7 @@ const Langs = {
       ipfs_node: "IPFS Node",
       browser_addon: "Browser addon",
       pin: "Pin it",
+      pinned: "Successfully pinned the app",
     },
     welcome_message: {
       title: (channel) => `Welcome to the ${channel} channel`,
@@ -100,6 +131,7 @@ const Langs = {
       blocked: "This user has been blocked",
     },
     settings_menu: {
+      go_home: "Return to the home page",
       check_my_name: "Validate my nickname",
       switch_theme: "Switch theme",
       pinned_at_top: "Pinned at top",

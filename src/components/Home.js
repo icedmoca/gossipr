@@ -22,6 +22,15 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button'
 import AppBar from '@material-ui/core/AppBar'
+import Grid from '@material-ui/core/Grid'
+import CircularProgress from '@material-ui/core/CircularProgress'
+
+import photo1 from '../photo1.jpg'
+import photo2 from '../photo2.jpg'
+import photo3 from '../photo3.jpg'
+
+import DownIcon from '@material-ui/icons/KeyboardArrowDown'
+import UpIcon from '@material-ui/icons/KeyboardArrowUp'
 
 import Data from '../Data'
 import Lang from '../Lang'
@@ -43,58 +52,170 @@ export default class extends React.Component {
   handlePinDialogOpen = () => this.pinDialog.handleOpen()
 
   render(){
+    const theme = this.props.theme.palette.type
     return (<>
-      <AppBar position="relative"  style={{ background: 'transparent', boxShadow: 'none'}}>
-          <Toolbar style={{justifyContent: 'flex-end'}}>
-            <IconButton 
-              onClick={this.handlePinDialogOpen}
-              children={<PinIcon/>}  
-            />
-            <PinDialog ref={this.refPinDialog}/>
-          </Toolbar>
-        </AppBar>
-        <List style={{ width: '90%', position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)'}}>
-          <ListItem style={{justifyContent: 'center'}} >
-            <img src={logo} />
-          </ListItem>
-          <ListItem style={{justifyContent: 'center'}}>
-            <Typography style={{ textAlign: 'center'}} variant="h3" children={Lang().home_page.title}/>
-          </ListItem>
-          <ListItem style={{justifyContent: 'center'}}>
-            <Typography style={{ textAlign: 'center' }} variant="h6" 
-              children={Lang().home_page.text} 
-            />
-          </ListItem>
-          <ListItem style={{justifyContent: 'center'}} >
-            <TextField 
-              id="channelInput"
-              style={{flex: 1, maxWidth: 300}}
-              label={Lang().join_channel}
-              defaultValue={Data.channel.substr(1) || 'main'}
-              inputRef={(it) => this.input = it}
-              onKeyPress={(e) => (e.key === 'Enter') && this.handleJoin()}
-              helperText={Lang().join_channel_hint}
-              InputProps={{
-                startAdornment: <InputAdornment position="start">#</InputAdornment>
-              }}
-            />
-            <IconButton 
-              onClick={this.handleJoin}
-              children={<JoinIcon/>}
-            />
-          </ListItem>
-        </List>
-      </>)
+      <AppBar position="absolute"  style={{ background: 'transparent', boxShadow: 'none'}}>
+        <Toolbar style={{justifyContent: 'flex-end'}}>
+          <IconButton 
+            onClick={this.handlePinDialogOpen}
+            children={<PinIcon/>}  
+          />
+          <PinDialog ref={this.refPinDialog}/>
+        </Toolbar>
+      </AppBar>
+      <Grid container>
+          <Grid item xs={12} 
+            container 
+            style={{padding: 32, minHeight: '100vh' }}
+            direction="column"
+            justify="space-evenly"
+            alignItems="center">
+            <Grid item container
+            spacing={32}
+            direction="column"
+            justify="center"
+            alignItems="center">
+              <Grid item>
+                <img  src={logo} />
+              </Grid>
+              <Grid item>
+                <Typography style={{ textAlign: 'center' }} variant="h3" children={Lang().home_page.title} />
+              </Grid>
+              <Grid item>
+                <Typography style={{ textAlign: 'center', maxWidth: 800 }} variant="h6" 
+                  children={Lang().home_page.text} 
+                />
+              </Grid>
+              <Grid item>
+                <TextField
+                  id="channelInput"
+                  style={{ flex: 1, maxWidth: 300 }}
+                  label={Lang().join_channel}
+                  defaultValue={Data.channel.substr(1) || 'main'}
+                  inputRef={(it) => this.input = it}
+                  onKeyPress={(e) => (e.key === 'Enter') && this.handleJoin()}
+                  helperText={Lang().join_channel_hint}
+                  InputProps={{
+                    startAdornment: <InputAdornment position="start">#</InputAdornment>
+                  }}
+                />
+                <IconButton
+                  onClick={this.handleJoin}
+                  children={<JoinIcon />}
+                />
+              </Grid>
+            </Grid>
+            <Grid item >
+              <IconButton onClick={() => document.getElementById('homeFirst').scrollIntoView({ behavior: 'smooth'})}>
+                <DownIcon />
+              </IconButton>
+            </Grid>
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <img style={{objectFit: 'cover', width: '100%', height: '100%'}} src={photo1}/>
+        </Grid>
+        <Grid item xs={12} sm={6}
+        id='homeFirst'
+        container
+        style={{ 
+          padding: 32, 
+          minHeight: '100vh', 
+          background: (theme === 'dark') ?'darkslateblue':'lavender'
+        }}
+        direction="column"
+        justify="space-evenly"
+        alignItems="center">
+          <Grid item>
+            <Typography variant='h3' children={Lang().home_page.first.title} />
+          </Grid>
+          <Grid item style={{maxWidth: 500}}>
+            <br/>
+            <Typography style={{textAlign: 'center'}} variant='h6' children={Lang().home_page.first.text1} />
+            <br/>
+            <Typography style={{textAlign: 'center'}} variant='h6' children={Lang().home_page.first.text2} />
+          </Grid>
+          <Grid item style={{position: 'relative'}}>
+            <IconButton onClick={() => document.getElementById('homeSecond').scrollIntoView({ behavior: 'smooth' })}>
+              <DownIcon />
+            </IconButton>
+          </Grid>
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <img style={{objectFit: 'cover', width: '100%', height: '100%'}} src={photo2}/>
+        </Grid>
+        <Grid item xs={12} sm={6}
+        container
+        id='homeSecond'
+        style={{ 
+          padding: 32, 
+          minHeight: '100vh',
+          background: (theme === 'dark')?'brown':'bisque'
+        }}
+        direction="column"
+        justify="space-evenly"
+        alignItems="center">
+          <Grid item>
+            <Typography variant='h3' children={Lang().home_page.second.title} />
+          </Grid>
+          <Grid item style={{maxWidth: 500}}>
+            <br/>
+            <Typography style={{textAlign: 'center'}} variant='h6' children={Lang().home_page.second.text} />
+          </Grid>
+          <Grid item style={{ position: 'relative' }}>
+            <IconButton onClick={() => document.getElementById('homeThird').scrollIntoView({ behavior: 'smooth' })}>
+              <DownIcon />
+            </IconButton>
+          </Grid>
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <img style={{objectFit: 'cover', width: '100%', height: '100%'}} src={photo3}/>
+        </Grid>
+        <Grid item xs={12} sm={6}
+        container
+        id='homeThird'
+        style={{ 
+          padding: 32, 
+          minHeight: '100vh',
+          background: (theme === 'dark') ?'seagreen':'lightpink'
+        }}
+        direction="column"
+        justify="space-evenly"
+        alignItems="center">
+          <Grid item>
+            <Typography variant='h3' children={Lang().home_page.third.title} />
+          </Grid>
+          <Grid item style={{maxWidth: 500}}>
+            <br/>
+            <Typography style={{textAlign: 'center'}} variant='h6' children={Lang().home_page.third.text1} />
+            <br/>
+            <Typography style={{textAlign: 'center'}} variant='h6' children={Lang().home_page.third.text2} />
+          </Grid>
+          <Grid item style={{ position: 'relative' }}>
+            <IconButton onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+              <UpIcon />
+            </IconButton>
+          </Grid>
+        </Grid>
+      </Grid>
+    </>)
   }
 }
 
 class PinDialog extends React.Component{
   state = {open: false}
+
   handlePin = async () => {
-    const api = await window.ipfs.enable()
-    api.pin.add('QmTgbepCJdFFEBjUcCmLD7FM76oKkPWBbEGidsXswMqea3')
-    this.setState({open: false})
+    try{
+      this.setState({ loading: true })
+      const api = await window.ipfs.enable()
+      await api.pin.add('/ipns/QmTgbepCJdFFEBjUcCmLD7FM76oKkPWBbEGidsXswMqea3')
+      window.app.snackbar(Lang().pin_dialog.pinned)
+    } catch(err){
+      window.app.snackbar(err.message)
+    }
+    this.setState({ loading: false })
   }
+
   handleOpen = () => this.setState({open: true})
   handleClose = () => this.setState({open: false})
   handleClickDesktop = () => window.open('https://github.com/ipfs-shipyard/ipfs-desktop/releases', '_blank')
@@ -116,6 +237,14 @@ class PinDialog extends React.Component{
             onClick={this.handleClickExtension} />
           </>)}
           </DialogContentText>
+          <br/>
+          {(this.state.loading) && (
+            <Grid container justify='center'>
+              <Grid item>
+                <Typography children={<CircularProgress color='inherit' />}/>
+              </Grid>
+            </Grid>
+          )}
         </DialogContent>
         <DialogActions>
           <Button children={Lang().close} onClick={this.handleClose}  />

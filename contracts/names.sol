@@ -1,4 +1,4 @@
-pragma solidity ^ 0.4.25;
+pragma solidity ^ 0.5.4;
 
 /**
  * @title Ownable
@@ -6,7 +6,7 @@ pragma solidity ^ 0.4.25;
  * functions, this simplifies the implementation of "user permissions".
  */
 contract Ownable {
-  address private _owner;
+  address payable private _owner;
 
   event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
 
@@ -22,7 +22,7 @@ contract Ownable {
   /**
    * @return the address of the owner.
    */
-  function owner() public view returns(address) {
+  function owner() public view returns(address payable) {
     return _owner;
   }
 
@@ -56,7 +56,7 @@ contract Ownable {
    * @dev Allows the current owner to transfer control of the contract to a newOwner.
    * @param newOwner The address to transfer ownership to.
    */
-  function transferOwnership(address newOwner) public onlyOwner {
+  function transferOwnership(address payable newOwner) public onlyOwner {
     _transferOwnership(newOwner);
   }
 
@@ -64,7 +64,7 @@ contract Ownable {
    * @dev Transfers control of the contract to a newOwner.
    * @param newOwner The address to transfer ownership to.
    */
-  function _transferOwnership(address newOwner) internal {
+  function _transferOwnership(address payable newOwner) internal {
     require(newOwner != address(0));
     emit OwnershipTransferred(_owner, newOwner);
     _owner = newOwner;
@@ -73,6 +73,7 @@ contract Ownable {
 
 contract Names is Ownable {
 
+  mapping(string => address) private addresses;
   mapping(string => string) private names;
   mapping(string => bool) private used;
 
@@ -81,24 +82,32 @@ contract Names is Ownable {
 
   uint public price = 10 finney;
 
-  function getName(string memory _peerId) public view returns (string memory) {
+  function getName(string memory _peerId) public view returns(string memory) {
     return names[_peerId];
   }
-  
-  function isUsed(string memory _name) public view returns (bool) {
+
+  function isUsed(string memory _name) public view returns(bool) {
     return used[_name];
   }
 
+  function getOwner(string memory _peerId) public view returns(address) {
+    return addresses[_peerId];
+  }
+
   function _setName(string memory _peerId, string memory _name) private  {
-    require(!isUsed(_name));
-    used[_name] = true;
-    names[_peerId] = _name;
-    emit NameChanged(_peerId, _name);
+    require(!used[_name]);              // Check the name is unused
+    used[names[_peerId]] = false;       // Set old name as unused
+    used[_name] = true;                 // Set new name as used
+    names[_peerId] = _name;             // Set name of this _peerId
+    addresses[_peerId] = msg.sender;    // Set owner of this _peerId
+    emit NameChanged(_peerId, _name);   // Emit NameChanged event
   }
 
   function buyName(string memory _peerId, string memory _name) public payable {
-    require(msg.value == price);
-    _setName(_peerId, _name);
+    require(msg.value == price);                            // Check the price is correct
+    address owner = addresses[_peerId];                     // Get the owner of this _peerId
+    require(owner == address(0) || owner == msg.sender);    // Check the owner is not set, or the sender is the owner
+    _setName(_peerId, _name);                               // Execute name change
   }
 
   function setName(string memory _peerId, string memory _name) public onlyOwner {
