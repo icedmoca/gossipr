@@ -56,7 +56,7 @@ export default class extends React.Component{
         <Drawer />
         <Log />
         <Form />
-      </>) : (<Typography style={{display: 'flex', justifyContent: 'center'}}>
+      </>) : (<Typography component='span' style={{display: 'flex', justifyContent: 'center'}}>
           <CircularProgress style={{position: 'absolute', top: '40%'}} size={120} color='inherit' />
       </Typography>):(
         <Home theme={this.getTheme()} />

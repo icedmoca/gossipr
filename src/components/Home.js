@@ -66,15 +66,16 @@ export default class extends React.Component {
       <Grid container>
           <Grid item xs={12} 
             container 
+            spacing={16}
             style={{padding: 32, minHeight: '100vh' }}
             direction="column"
             justify="space-evenly"
             alignItems="center">
             <Grid item container
-            spacing={32}
-            direction="column"
-            justify="center"
-            alignItems="center">
+              spacing={32}
+              direction="column"
+              justify="center"
+              alignItems="center">
               <Grid item>
                 <img  src={logo} />
               </Grid>

@@ -64,6 +64,10 @@ const sanitize = (channel) => {
   if (Data.avatar) Node.loadAvatar(Data.avatar);
 
   Node.refresh();
+
+  const hashify = async msg => ({...msg, hash: await Node.hash(JSON.stringify(msg)) })
+  const messages = Data.messages.map(async it => (it.hash)?it:(await hashify(it)))
+  Data.messages = await Promise.all(messages)
 })();
 
 window.onhashchange = async () => {

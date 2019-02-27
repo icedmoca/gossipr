@@ -396,7 +396,7 @@ class ShareDialog extends React.Component{
 class BuyNameDialog extends React.Component{
   state={open: false, loading: false}
   open = () => this.setState({open: true})
-  close = () => this.setState({open: false})
+  close = () => this.setState({open: false, loading: false})
 
   refNameInput = it => this.nameInput = it
 
@@ -409,7 +409,7 @@ class BuyNameDialog extends React.Component{
       this.setState({ loading: true })
       await Ether.buyName(name) 
       window.app.snackbar(Lang().check_my_name.checked)
-      await Node.loadName(window.data.id)
+      Data.name = await Node.loadName(window.data.id)
       this.setState({ open: false, loading: false })
       window.drawer.close()
     }
@@ -429,7 +429,7 @@ class BuyNameDialog extends React.Component{
         <DialogContent>
           <List>
             <ListItem style={{ justifyContent: 'center' }}>
-              <Typography children={Lang().check_my_name.text('10 milliethers', '1.20€ / 1.40$')}/>
+              <Typography children={Lang().check_my_name.text(Ether.price / 1000000000000000)}/>
             </ListItem>
             <ListItem style={{justifyContent: 'center'}}>
               <TextField 
@@ -440,7 +440,7 @@ class BuyNameDialog extends React.Component{
             </ListItem>
             <ListItem style={{justifyContent: 'space-around'}}>{
               (this.state.loading) ? (
-                <Typography>
+                <Typography component='span'>
                   <CircularProgress color='inherit'/>
                 </Typography>
               ) : (

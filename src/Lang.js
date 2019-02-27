@@ -47,6 +47,7 @@ const Langs = {
       pin: (value) => value ? "Désépingler":"Épingler",
       block: "Bloquer",
       blocked: "Cet utilisateur a été bloqué",
+      delete: "Supprimer",
     },
     settings_menu: {
       go_home: "Revenir à la page d'accueil",
@@ -75,7 +76,7 @@ const Langs = {
     },
     check_my_name: {
       title: "Faites un don, obtenez un nom",
-      text: (price, fiat) => `Faites un don à Gossipr et obtenez un pseudo unique, pour seulement ${price} (${fiat})`,
+      text: (price) => `Faites un don à Gossipr et obtenez un pseudo unique, pour seulement ${price} milliethers`,
       my_name: "Mon pseudo",
       err_spaces: "Votre nom ne doit pas être entouré d'espaces",
       err_used: "Ce nom est déjà utilisé",
@@ -129,6 +130,7 @@ const Langs = {
       pin: (value) => value ? "Unpin":"Pin",
       block: "Block",
       blocked: "This user has been blocked",
+      delete: "Delete",
     },
     settings_menu: {
       go_home: "Return to the home page",
@@ -157,7 +159,7 @@ const Langs = {
     },
     check_my_name: {
       title: "Make a donation, get a name",
-      text: (price, fiat) => `Make a donation to Gossipr and get an unique nickname, for only ${price} (${fiat})`,
+      text: (price) => `Make a donation to Gossipr and get an unique nickname, for only ${price} milliethers`,
       my_name: "My nickname",
       err_spaces: "Your nickname must not be surrounded by spaces",
       err_used: "This nickname is already used",

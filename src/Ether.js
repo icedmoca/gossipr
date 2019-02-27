@@ -7,7 +7,9 @@ const Ether = {
 
   contracts: {},
 
-  start: () => {
+  price: null,
+
+  start: async () => {
     window.ether = Ether;
 
     if(window.ethereum || window.web3){
@@ -21,6 +23,8 @@ const Ether = {
 
     const names = new Ether.web3.eth.Contract(Names, "0xfacec0c2ab6102e031c8fc13734a897766358643")
     Ether.contracts = {names}
+
+    Ether.price = await Ether.getPrice()
   },
 
   getPrice: () => Ether.execute('names', 'price')().call(),

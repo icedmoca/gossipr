@@ -136,6 +136,9 @@ const Node = {
   },
 
   handleMessage: async (msg) => {
+    msg.hash = await Node.hash(JSON.stringify(msg))
+    if(Data.messages.some(it => it.hash === msg.hash)) return
+
     Data.messages = [...Data.messages, msg]
     if (window.logger) window.logger.setState({})
 

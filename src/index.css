@@ -23,6 +23,12 @@ a {
   color: inherit;
 }
 
+.ellipsis {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
 .noselect { user-select: none; }
 .noscrollbar {
   scrollbar-width: none;

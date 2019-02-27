@@ -47,7 +47,7 @@ const Data = {
   get pinnedAtTop() { return localStorage.pinnedAtTop === 'true' },
   set pinnedAtTop(value) { 
     localStorage.pinnedAtTop = value
-    if(window.logger) window.logger.setState({pinnedAtTop: value})  
+    if(window.logger) window.logger.setState({})  
   },
 
 }

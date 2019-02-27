@@ -27,10 +27,8 @@ export default class extends React.Component{
       position="sticky">
       <Toolbar style={{padding: '0 10px', maxWidth: 1000, width: '100%', margin: 'auto'}}  >
         <Typography 
-          style={{
-            flex: 1, marginRight: 20, maxWidth: 1000,
-            textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap'
-          }}
+          className="ellipsis"
+          style={{flex: 1, marginRight: 20, maxWidth: 1000}}
           color="inherit" 
           variant="h6" 
           children={Data.channel}
