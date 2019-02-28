@@ -69,7 +69,6 @@ const Node = {
       }
 
       if (meta.type !== "message" || !meta.name || !data) return
-
       Node.handleMessage({ channel, meta, data, peer: packet.from })
     }
 

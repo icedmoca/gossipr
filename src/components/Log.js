@@ -1,4 +1,5 @@
 import React from "react";
+import ReactDOM from "react-dom";
 
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
@@ -62,14 +63,15 @@ export default class extends React.Component {
   getPinned = () => this.getAll().filter(it => it.pinned)
 
   renderMessages = (messages) => messages.map(this.renderMessage)
+  openMenu = (msg) => (e) => this.messageMenu.open({x: e.pageX, y: e.pageY}, msg)
   renderMessage = (msg) => <ListItem  
     key={msg.meta.time || new Date().getTime()}
-    style={{alignItems: 'flex-end', background: (msg.pinned)?'#8080801f':null}}>
+    style={{alignItems: 'flex-end', background: (msg.pinned)?'#8080801f':null}}
+    onClick={this.openMenu(msg)}>
     <Avatar
       style={{ background: (Data.theme !== 'light') ? 'white' : null }}
       src={Node.getAvatar(msg.meta.avatar)}
       children={<AvatarIcon />}
-      onClick={(e) => this.messageMenu.open(e.target, msg)}
     />
     <ListItemText
       primaryTypographyProps={{component: 'div', style: {marginTop: -10}}}
@@ -113,10 +115,10 @@ export default class extends React.Component {
 }
 
 class MessageMenu extends React.Component{
-  state = { anchor: null, message: null }
+  state = { pos: null, message: null }
   
-  open = (anchor, message) => this.setState({anchor, message})
-  close = () => this.setState({anchor: null, message: null})
+  open = (pos, message) => this.setState({pos, message})
+  close = () => this.setState({pos: null, message: null})
 
   handleBlock = () => {
     const peer = this.state.message.peer
@@ -147,30 +149,33 @@ class MessageMenu extends React.Component{
   }
 
   render(){
-    const {anchor, message} = this.state
-    return <Menu
-      disableAutoFocusItem
-      anchorEl={anchor}
-      open={Boolean(anchor)}
-      onClose={this.close}>
-      <MenuItem onClick={this.handleQuote}>
-        <ListItemIcon children={<QuoteIcon />} />
-        <ListItemText inset primary={Lang().message_menu.quote} />
-      </MenuItem>
-      <MenuItem onClick={this.handlePin}>
-        <ListItemIcon children={<SaveIcon />} />
-        <ListItemText inset primary={Lang().message_menu.pin(message && message.pinned)} />
-      </MenuItem>
-      {(message) && (message.peer !== window.data.id) && (
-        <MenuItem onClick={this.handleBlock}>
-          <ListItemIcon children={<BlockIcon />} />
-          <ListItemText inset primary={Lang().message_menu.block} />
+    const {pos, message} = this.state
+    return <>
+      <div ref={it => this.anchor = it} style={(pos) && {position: 'absolute', left: pos.x, top: pos.y}}/>
+      <Menu
+        disableAutoFocusItem
+        anchorEl={this.anchor}
+        open={Boolean(pos)}
+        onClose={this.close}>
+        <MenuItem onClick={this.handleQuote}>
+          <ListItemIcon children={<QuoteIcon />} />
+          <ListItemText inset primary={Lang().message_menu.quote} />
         </MenuItem>
-      )}
-      <MenuItem onClick={this.handleDelete}>
-        <ListItemIcon children={<ClearIcon />} />
-        <ListItemText inset primary={Lang().message_menu.delete} />
-      </MenuItem>
-    </Menu>
+        <MenuItem onClick={this.handlePin}>
+          <ListItemIcon children={<SaveIcon />} />
+          <ListItemText inset primary={Lang().message_menu.pin(message && message.pinned)} />
+        </MenuItem>
+        {(message) && (message.peer !== window.data.id) && (
+          <MenuItem onClick={this.handleBlock}>
+            <ListItemIcon children={<BlockIcon />} />
+            <ListItemText inset primary={Lang().message_menu.block} />
+          </MenuItem>
+        )}
+        <MenuItem onClick={this.handleDelete}>
+          <ListItemIcon children={<ClearIcon />} />
+          <ListItemText inset primary={Lang().message_menu.delete} />
+        </MenuItem>
+      </Menu>
+    </>
   }
 }

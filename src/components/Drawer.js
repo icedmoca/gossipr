@@ -76,7 +76,7 @@ export default class extends React.Component {
   refChannelMenu = it => (this.channelMenu = it);
   openChannelMenu = channel => e => {
     e.preventDefault()
-    this.channelMenu.open(e.target, channel);
+    this.channelMenu.open({x: e.pageX, y: e.pageY}, channel)
   };
 
   renderChannel = channel => {
@@ -266,8 +266,8 @@ class SettingsMenu extends React.Component {
 
 class ChannelMenu extends React.Component {
   state = { anchor: null, channel: null };
-  open = (anchor, channel) => this.setState({ anchor, channel });
-  close = () => this.setState({ anchor: null });
+  open = (pos, channel) => this.setState({ pos, channel });
+  close = () => this.setState({ pos: null });
 
   share = () => {
     window.drawer.shareDialog.open(this.state.channel)
@@ -307,32 +307,36 @@ class ChannelMenu extends React.Component {
   }
 
   render() {
-    return <Menu
-      disableAutoFocusItem
-      anchorEl={this.state.anchor}
-      open={Boolean(this.state.anchor)}
-      onClose={this.close}>
-      <MenuItem onClick={this.share}>
-        <ListItemIcon children={<ShareIcon />} />
-        <ListItemText children={Lang().channel_menu.share} />
-      </MenuItem>
-      <MenuItem onClick={this.mute}>
-        <ListItemIcon children={<MuteIcon />} />
-        {(Data.muted.includes(this.state.channel)) ? (
-          <ListItemText children={Lang().channel_menu.silent(true)} />
-        ):(
-          <ListItemText children={Lang().channel_menu.silent(false)} />
-        )}
-      </MenuItem>
-      <MenuItem onClick={this.clearAll}>
-        <ListItemIcon children={<ClearAllIcon />} />
-        <ListItemText children={Lang().channel_menu.clear_all} />
-      </MenuItem>
-      <MenuItem onClick={this.quit}>
-        <ListItemIcon children={<CloseIcon />} />
-        <ListItemText children={Lang().channel_menu.quit} />
-      </MenuItem>
-    </Menu>
+    const {pos} = this.state
+    return <>
+      <div ref={it => this.anchor = it} style={(pos) && {position: 'absolute', left: pos.x, top: pos.y}}/>
+      <Menu
+        disableAutoFocusItem
+        anchorEl={this.anchor}
+        open={Boolean(pos)}
+        onClose={this.close}>
+        <MenuItem onClick={this.share}>
+          <ListItemIcon children={<ShareIcon />} />
+          <ListItemText children={Lang().channel_menu.share} />
+        </MenuItem>
+        <MenuItem onClick={this.mute}>
+          <ListItemIcon children={<MuteIcon />} />
+          {(Data.muted.includes(this.state.channel)) ? (
+            <ListItemText children={Lang().channel_menu.silent(true)} />
+          ):(
+            <ListItemText children={Lang().channel_menu.silent(false)} />
+          )}
+        </MenuItem>
+        <MenuItem onClick={this.clearAll}>
+          <ListItemIcon children={<ClearAllIcon />} />
+          <ListItemText children={Lang().channel_menu.clear_all} />
+        </MenuItem>
+        <MenuItem onClick={this.quit}>
+          <ListItemIcon children={<CloseIcon />} />
+          <ListItemText children={Lang().channel_menu.quit} />
+        </MenuItem>
+      </Menu>
+    </>
   }
 }
 
