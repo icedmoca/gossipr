@@ -2,6 +2,8 @@ import Data from './Data'
 import Ether from './Ether'
 import * as Messenger from './Messenger'
 
+import Crypto from 'crypto-js'
+
 const Node = {
 
   get node() { return window.data.node },
@@ -47,21 +49,31 @@ const Node = {
   },
 
   subscribe: async (channel) => {
-    const hash = await Node.hash('gossipr'+channel)
+    const topic = await Node.hash('gossipr'+channel)
     const channels = await Node.node.pubsub.ls()
-    if(channels.includes(hash)) return
+    if(channels.includes(topic)) return
 
     const listener = async (packet) => {
       if(!Data.channels.includes(channel)) return
+      let meta, data
 
-      const peer = packet.from
-      const { meta, data } = JSON.parse(packet.data.toString())
+      try{
+        const json = packet.data.toString();
+        ({ meta, data } = JSON.parse(json))
+      }
+      catch(e){
+        const hash = packet.data.toString()
+        const encrypted = await Node.node.files.cat(hash)
+        const decrypted = Crypto.AES.decrypt(encrypted.toString(), channel);
+        ({ meta, data } = JSON.parse(decrypted.toString(Crypto.enc.Utf8)))
+      }
+
       if (meta.type !== "message" || !meta.name || !data) return
 
-      Node.handleMessage({ meta, data, peer, channel })
+      Node.handleMessage({ channel, meta, data, peer: packet.from })
     }
 
-    await Node.node.pubsub.subscribe(hash, listener)
+    await Node.node.pubsub.subscribe(topic, listener)
     console.log('Subscribed to', channel)
   },
 
@@ -124,11 +136,17 @@ const Node = {
   },
 
   publish: async (channel, meta, data) => {
+    const topic = await Node.hash('gossipr' + channel)
     const raw = { meta, data }
+
     const json = JSON.stringify(raw)
-    const buffer = Node.buffer.from(json);
-    const hash = await Node.hash('gossipr'+channel)
-    Node.node.pubsub.publish(hash, buffer);
+    Node.node.pubsub.publish(topic, Node.buffer.from(json));
+
+    const encrypted = Crypto.AES.encrypt(json, channel).toString()
+    const buffer = Node.buffer.from(encrypted)
+    const res = await Node.node.files.add(buffer)
+    const hash = res[0].hash
+    Node.node.pubsub.publish(topic, Node.buffer.from(hash));
   },
 
   uploadAvatar: async (file) => {
