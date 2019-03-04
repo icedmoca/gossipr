@@ -1,4 +1,12 @@
-export const Names = [
+import Ether from '../Ether'
+
+export const name = 'names'
+
+export const address = "0xfacec0c2ab6102e031c8fc13734a897766358643"
+
+export const getPrice = () => Ether.execute('names', 'price')().call()
+
+export const ABI = [
 	{
 		"constant": false,
 		"inputs": [

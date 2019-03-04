@@ -31,6 +31,7 @@ import photo3 from '../photo3.jpg'
 
 import DownIcon from '@material-ui/icons/KeyboardArrowDown'
 import UpIcon from '@material-ui/icons/KeyboardArrowUp'
+import CodeIcon from '@material-ui/icons/Code'
 
 import Data from '../Data'
 import Lang from '../Lang'
@@ -51,11 +52,17 @@ export default class extends React.Component {
   refPinDialog = (it) => this.pinDialog = it
   handlePinDialogOpen = () => this.pinDialog.handleOpen()
 
+  openGitHub = () => window.open('https://github.com/Hazae41/Gossipr', '_blank')
+
   render(){
     const theme = this.props.theme.palette.type
     return (<>
       <AppBar position="absolute"  style={{ background: 'transparent', boxShadow: 'none'}}>
         <Toolbar style={{justifyContent: 'flex-end'}}>
+          <IconButton
+            onClick={this.openGitHub}
+            children={<CodeIcon/>}
+          />
           <IconButton 
             onClick={this.handlePinDialogOpen}
             children={<PinIcon/>}  

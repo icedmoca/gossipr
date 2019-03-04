@@ -16,16 +16,15 @@ import SaveIcon from '@material-ui/icons/Save'
 import Typography from '@material-ui/core/Typography'
 import Grid from '@material-ui/core/Grid'
 import Divider from '@material-ui/core/Divider'
+import CircularProgress from '@material-ui/core/CircularProgress'
 
 import ClearIcon from '@material-ui/icons/Clear'
-
-import Anchor from './Anchor'
-import Image from './Image'
 
 import Remark from 'remark'
 import RemarkReact from 'remark-react'
 import RemarkImages from 'remark-images'
 import RemarkBreaks from 'remark-breaks'
+import fileType from 'file-type'
 
 import Data from '../Data'
 import Node from '../Node'
@@ -40,6 +39,18 @@ const Blockquote = ({children}) =>
   <blockquote children={children} 
     style={{ background: '#8080801f', paddingLeft: 10, marginInlineStart: 0, marginInlineEnd: 0}}
   />
+
+class Image extends React.Component {
+  state = { big: false }
+  handleClick = () => this.setState({ big: !this.state.big })
+  render() {
+    const { src } = this.props
+    return <img src={src}
+      style={{ width: '100%', maxWidth: (this.state.big) ? 500 : 90 }}
+      onClick={this.handleClick}
+    />
+  }
+}
 
 export default class extends React.Component {
   state={tooltip: false}
@@ -177,5 +188,59 @@ class MessageMenu extends React.Component{
         </MenuItem>
       </Menu>
     </>
+  }
+}
+
+class Anchor extends React.Component {
+  state = { type: 'anchor', source: this.props.href }
+
+  componentDidMount() {
+    (async () => {
+      const { href } = this.props
+      const ipfsPattern = /^https?:\/\/[^/]+\/(ip(f|n)s)\/((\w+).*)/
+      const ipfsMatch = href.match(ipfsPattern)
+      if(!ipfsMatch) return
+      const hash = ipfsMatch[4]
+
+      this.setState({ type: 'loading' })
+      const fallback = () => this.setState({type: 'anchor'})
+
+      //const {size} = (await Node.node.files.get(hash))[0]
+      //console.log('Received file size', size)
+      //if(size > 10000000) return fallback()
+
+      const file = await Node.node.files.cat(hash)
+
+      const {ext, mime} = fileType(file)
+      const type = mime.split('/')[0]
+      const mimes = ['audio', 'image', 'video']
+      if(!mimes.includes(type)) return fallback()
+
+      const source = "data:"+type+"/"+ext+";base64,"+file.toString("base64");
+      this.setState({ type, source })
+    })()
+  }
+  render() {
+    const { children } = this.props
+    const { type, source } = this.state
+    if (type === "loading")
+      return <CircularProgress color='inherit' size={20} />
+    if (type === 'audio')
+      return <audio
+        controls
+        style={{ width: "100%" }}
+        children={<source src={source} />}
+      />
+    if (type === 'image')
+      return <Image src={source} />
+    if (type === 'video')
+      return <video
+        controls
+        style={{ width: '100%', maxWidth: 500, maxHeight: 500 }}
+        children={<source src={source} />}
+      />
+    if(children[0].type && children[0].type.name === 'Image')
+      return <>{children}</>
+    return <a href={source} target='_blank' children={children} />
   }
 }

@@ -1,7 +1,7 @@
 import Web3 from 'web3'
 import Fortmatic from 'fortmatic';
 
-import {Names} from './Contracts'
+import * as Names from './contracts/Names'
 
 const Ether = {
 
@@ -21,11 +21,13 @@ const Ether = {
       console.log('Using fortmatic web3')
     }
 
-    const names = new Ether.web3.eth.Contract(Names, "0xfacec0c2ab6102e031c8fc13734a897766358643")
-    Ether.contracts = {names}
+    Ether.loadContract(Names)
 
     Ether.price = await Ether.getPrice()
   },
+
+  getContract: (contract) => new Ether.web3.eth.Contract(contract.ABI, contract.address),
+  loadContract: (contract) => Ether.contracts[contract.name] = Ether.getContract(contract),
 
   getPrice: () => Ether.execute('names', 'price')().call(),
 

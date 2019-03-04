@@ -4,10 +4,13 @@ import './index.css';
 
 import Form from "./components/Form";
 import Log from "./components/Log";
-import InstallPrompt from './components/InstallPrompt'
 import InfoBar from './components/InfoBar'
 import Home from './components/Home'
 import Drawer from './components/Drawer'
+import AppBar from "@material-ui/core/AppBar";
+import Toolbar from "@material-ui/core/Toolbar";
+import Typography from "@material-ui/core/Typography";
+import shareicon from './shareicon.png'
 
 import {MuiThemeProvider} from '@material-ui/core/styles'
 import Themes from './Themes'
@@ -17,10 +20,10 @@ import IconButton from '@material-ui/core/IconButton'
 import CloseIcon from "@material-ui/icons/Clear";
 import Snackbar from "@material-ui/core/Snackbar";
 import CircularProgress from '@material-ui/core/CircularProgress'
-import Typography from '@material-ui/core/Typography'
 import { Helmet } from "react-helmet";
 
 import Data from './Data'
+import Lang from './Lang'
 
 export default class extends React.Component{
   state = { ready: false, theme: Data.theme, snackbar: null }
@@ -82,4 +85,23 @@ export default class extends React.Component{
   }
 }
 
+const isInstalled = (window.matchMedia('(display-mode: standalone)').matches) || (window.navigator.standalone);
+const isiOS = ['iPhone', 'iPad', 'iPod'].includes(navigator.platform)
 
+class InstallPrompt extends React.Component {
+  state = { active: (isiOS && !isInstalled) }
+  render() {
+    if (!this.state.active) return null;
+    return <AppBar
+      color='default'
+      position='fixed'
+      style={{ top: 'auto', bottom: 0 }}>
+      <Toolbar
+        style={{ justifyContent: 'space-between' }}>
+        <img alt="install-icon" src={shareicon} style={{ width: '24px' }} />
+        <Typography variant="h7" children={Lang().install_prompt} />
+        <CloseIcon onClick={() => this.setState({ active: false })} />
+      </Toolbar>
+    </AppBar>
+  }
+}

@@ -20,7 +20,7 @@ const Langs = {
       },
       second: {
         title: 'Communautés.',
-        text: "Quand vous organisez un événement, vous pouvez interagir avec votre communauté en envoyant des messages, des photos, des fichiers... sans que les gens aie toute une démarche d'inscription, d'installation, ou de demande d'accès à réaliser.",
+        text: "Quand vous organisez un événement, vous pouvez interagir avec votre communauté en envoyant des messages, des photos, des fichiers... sans que les gens aient toute une démarche d'inscription, d'installation, ou de demande d'accès à réaliser.",
       },
       third: {
         title: 'Accessible.',
