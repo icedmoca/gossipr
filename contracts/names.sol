@@ -1,8 +1,8 @@
 pragma solidity ^ 0.5.4;
 
-import "./ownable.sol";
+import "./payable.sol";
 
-contract Names is Ownable {
+contract Names is Payable {
 
   mapping(string => address) private addresses;
   mapping(string => string) private names;

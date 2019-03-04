@@ -1,8 +1,8 @@
 pragma solidity ^ 0.5.4;
 
-import "./ownable.sol";
+import "./payable.sol";
 
-contract TopChannels is Ownable {
+contract TopChannels is Payable {
   mapping (string => uint)  _values;
   string[] _channels;
   
@@ -40,22 +40,5 @@ contract TopChannels is Ownable {
   
   function setMinimum(uint _minimum) public onlyOwner {
     minimum = _minimum;
-  }
-  
-  function balance() public view returns(uint){
-    return address(this).balance;
-  } 
-  
-  function withdraw(uint _amount) public onlyOwner {
-    require(_amount <= address(this).balance);
-    owner().transfer(_amount);
-  }
-  
-  function withdrawAll() public onlyOwner {
-    withdraw(address(this).balance);
-  }
-  
-  function kill() public onlyOwner {
-    selfdestruct(owner());
   }
 }
