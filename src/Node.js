@@ -4,6 +4,8 @@ import * as Messenger from './Messenger'
 
 import Crypto from 'crypto-js'
 
+import * as Names from './contracts/Names'
+
 const Node = {
 
   get node() { return window.data.node },
@@ -175,7 +177,7 @@ const Node = {
     if(!id) return
     console.log('Loading '+id+' name')
     window.data.names[id] = null
-    const name = await Ether.getName(id)
+    const name = await Names.getName(id)
     if(name.trim() !== name) return
     window.data.names[id] = name || null
     if(window.logger) window.logger.setState({})

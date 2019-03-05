@@ -2,7 +2,7 @@ import React from 'react'
 
 import '../index.css';
 
-import logo from '../favicon.ico'
+import logo from '../assets/favicon.ico'
 
 import Typography from '@material-ui/core/Typography'
 import List from "@material-ui/core/List";
@@ -11,6 +11,15 @@ import TextField from '@material-ui/core/TextField'
 import InputAdornment from '@material-ui/core/InputAdornment'
 import IconButton from '@material-ui/core/IconButton'
 import JoinIcon from '@material-ui/icons/Send'
+import EarthIcon from '@material-ui/icons/Public'
+import ListItemText from '@material-ui/core/ListItemText'
+
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableHead from '@material-ui/core/TableHead';
+import TablePagination from '@material-ui/core/TablePagination';
+import TableRow from '@material-ui/core/TableRow';
 
 import Toolbar from '@material-ui/core/Toolbar'
 import PinIcon from '@material-ui/icons/PinDrop'
@@ -25,9 +34,9 @@ import AppBar from '@material-ui/core/AppBar'
 import Grid from '@material-ui/core/Grid'
 import CircularProgress from '@material-ui/core/CircularProgress'
 
-import photo1 from '../photo1.jpg'
-import photo2 from '../photo2.jpg'
-import photo3 from '../photo3.jpg'
+import photo1 from '../assets/photo1.jpg'
+import photo2 from '../assets/photo2.jpg'
+import photo3 from '../assets/photo3.jpg'
 
 import DownIcon from '@material-ui/icons/KeyboardArrowDown'
 import UpIcon from '@material-ui/icons/KeyboardArrowUp'
@@ -35,6 +44,9 @@ import CodeIcon from '@material-ui/icons/Code'
 
 import Data from '../Data'
 import Lang from '../Lang'
+
+import Ether from '../Ether'
+import * as TopChannels from '../contracts/TopChannels'
 
 export default class extends React.Component {
   componentDidMount(){ window.home = this }
@@ -50,26 +62,38 @@ export default class extends React.Component {
   }
 
   refPinDialog = (it) => this.pinDialog = it
-  handlePinDialogOpen = () => this.pinDialog.handleOpen()
+  openPinDialog = () => this.pinDialog.open()
 
   openGitHub = () => window.open('https://github.com/Hazae41/Gossipr', '_blank')
+
+  refTopChannels = it => this.topChannels = it
+  openTopChannels = () => this.topChannels.open()
+
+  renderAppBar = () => (
+    <AppBar position="absolute"  style={{ background: 'transparent', boxShadow: 'none'}}>
+      <Toolbar style={{justifyContent: 'flex-end'}}>
+        <IconButton
+          onClick={this.openTopChannels}
+          children={<EarthIcon/>}
+        />
+        <IconButton
+          onClick={this.openGitHub}
+          children={<CodeIcon/>}
+        />
+        <IconButton 
+          onClick={this.openPinDialog}
+          children={<PinIcon/>}  
+        />
+        <PinDialog ref={this.refPinDialog}/>
+        <TopChannelsDialog ref={this.refTopChannels}/>
+      </Toolbar>
+    </AppBar>
+  )
 
   render(){
     const theme = this.props.theme.palette.type
     return (<>
-      <AppBar position="absolute"  style={{ background: 'transparent', boxShadow: 'none'}}>
-        <Toolbar style={{justifyContent: 'flex-end'}}>
-          <IconButton
-            onClick={this.openGitHub}
-            children={<CodeIcon/>}
-          />
-          <IconButton 
-            onClick={this.handlePinDialogOpen}
-            children={<PinIcon/>}  
-          />
-          <PinDialog ref={this.refPinDialog}/>
-        </Toolbar>
-      </AppBar>
+      {this.renderAppBar()}
       <Grid container>
           <Grid item xs={12} 
             container 
@@ -212,7 +236,7 @@ export default class extends React.Component {
 class PinDialog extends React.Component{
   state = {open: false}
 
-  handlePin = async () => {
+  pin = async () => {
     try{
       this.setState({ loading: true })
       const api = await window.ipfs.enable()
@@ -224,15 +248,18 @@ class PinDialog extends React.Component{
     this.setState({ loading: false })
   }
 
-  handleOpen = () => this.setState({open: true})
-  handleClose = () => this.setState({open: false})
-  handleClickDesktop = () => window.open('https://github.com/ipfs-shipyard/ipfs-desktop/releases', '_blank')
-  handleClickExtension = () => window.open('https://github.com/ipfs-shipyard/ipfs-companion#install', '_blank')
+  open = () => this.setState({open: true})
+  close = () => this.setState({open: false})
+
+  clickDesktop = () => window.open('https://github.com/ipfs-shipyard/ipfs-desktop/releases', '_blank')
+  clickExtension = () => window.open('https://github.com/ipfs-shipyard/ipfs-companion#install', '_blank')
+
   render(){
     return (
       <Dialog
+        fullWidth
         open={this.state.open}
-        onClose={this.handleClose}>
+        onClose={this.close}>
         <DialogTitle children={Lang().pin_dialog.title}/>
         <DialogContent>
           <DialogContentText>
@@ -240,9 +267,9 @@ class PinDialog extends React.Component{
           {(!window.ipfs) && (<>
             <br/><br/>{Lang().pin_dialog.install}<br/>
             <Button style={{ margin: 5}} variant="outlined" children={Lang().pin_dialog.ipfs_node}
-            onClick={this.handleClickDesktop} />
+            onClick={this.clickDesktop} />
             <Button style={{ margin: 5}} variant="outlined" children={Lang().pin_dialog.browser_addon}
-            onClick={this.handleClickExtension} />
+            onClick={this.clickExtension} />
           </>)}
           </DialogContentText>
           <br/>
@@ -255,9 +282,67 @@ class PinDialog extends React.Component{
           )}
         </DialogContent>
         <DialogActions>
-          <Button children={Lang().close} onClick={this.handleClose}  />
-          {(window.ipfs) && (<Button children={Lang().pin_dialog.pin} onClick={this.handlePin} />)}
+          <Button children={Lang().close} onClick={this.close}  />
+          {(window.ipfs) && (<Button children={Lang().pin_dialog.pin} onClick={this.pin} />)}
         </DialogActions>
+      </Dialog>
+    )
+  }
+}
+
+class TopChannelsDialog extends React.Component {
+  state = { open: false, channels: [] }
+  componentDidMount() { this.loadChannels() }
+
+  loadChannels = async () => {
+    const size = await TopChannels.getSize()
+    for(let i = 0; i < size; i++){
+      const id = await TopChannels.getChannel(i)
+      if(!id.startsWith('#')) continue
+      const value = await TopChannels.getValue(id)
+      this.state.channels.push({id, value})
+      this.setState({})
+    }
+  }
+
+  open = () => this.setState({ open: true })
+  close = () => this.setState({ open: false })
+
+  switch = ({id}) => () => window.location.hash = id
+
+  render() {
+    const {channels} = this.state
+    console.log(channels.length)
+    return (
+      <Dialog
+        fullWidth
+        open={this.state.open}
+        onClose={this.close}>
+        <DialogTitle children={Lang().top_channels.title} />
+        <DialogContent>
+          {(channels.length > 0) ? (
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell children={Lang().top_channels.name} />
+                  <TableCell align="right" children={Lang().top_channels.total} />
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {channels.map((channel, i) => (
+                  <TableRow hover style={{cursor: 'pointer'}} onClick={this.switch(channel)} key={i}>
+                    <TableCell children={channel.id} />
+                    <TableCell align="right" children={Ether.web3.utils.fromWei(channel.value, 'finney') + ' mΞ'} />
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          ) : (
+            <Typography style={{textAlign: 'center'}} component='span'>
+              <CircularProgress color='inherit' />
+            </Typography>
+          )}
+        </DialogContent>
       </Dialog>
     )
   }

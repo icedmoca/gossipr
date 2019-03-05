@@ -11,7 +11,7 @@ const Langs = {
     copy: 'Copier',
     send: 'Envoyer',
     home_page: {
-      title: "Oubliez les groupes de chats et les forums",
+      title: "Oubliez les groupes de chat et les forums",
       text: "Parlez avec vos amis ou avec des inconnus, sans intermédiaire, sans installation, et sans inscription",
       first: {
         title: 'Simple.',
@@ -38,6 +38,17 @@ const Langs = {
       pin: 'Épingler',
       pinned: "L'application a été épinglée avec succès",
     },
+    top_channels: {
+      title: "Canaux promus",
+      name: "Canal",
+      total: "Valeur totale",
+    },
+    promote_channel: {
+      title: (channel) => `Faites la promotion de ${channel}`,
+      text: (channel, minimum) => `Vous pouvez promouvoir ${channel} à partir de ${minimum} milliethers afin qu'il apparaisse sur la page d'accueil.`,
+      promote: `Promouvoir ce canal`,
+      promoted: `Le canal a été promu sur la page d'accueil`,
+    },
     welcome_message: {
       title: (channel) => "Bienvenue sur le canal "+channel,
       text1: "Commencez par envoyer un message 😉",
@@ -63,6 +74,7 @@ const Langs = {
     },
     channel_menu: {
       share: "Partager ce canal",
+      promote: "Promouvoir ce canal",
       silent: (value) => (value ? "Activer" : "Désactiver") + " les notifications",
       silent_toggled: (value) => `Ce canal ${value?'est désormais':"n'est plus"} en sourdine`,
       clear_all: "Tout effacer",
@@ -122,6 +134,17 @@ const Langs = {
       pin: "Pin it",
       pinned: "Successfully pinned the app",
     },
+    top_channels: {
+      title: "Promoted channels",
+      name: "Channel",
+      total: "Total value",
+    },
+    promote_channel: {
+      title: (channel) => `Promote ${channel}`,
+      text: (channel, minimum) => `You can promote ${channel} from ${minimum} milliethers so that it appears on the home page.`,
+      promote: `Promote this channel`,
+      promoted: `The channel has been promoted on the home page`,
+    },
     welcome_message: {
       title: (channel) => `Welcome to the ${channel} channel`,
       text1: "Start by sending a message 😉",
@@ -147,6 +170,7 @@ const Langs = {
     },
     channel_menu: {
       share: "Share this channel",
+      promote: "Promote this channel",
       silent: (value) => (value ? "Enable" : "Disable") + " notifications",
       silent_toggled: (value) => `This channel ${value?'is now':'is no longer'} silent`,
       clear_all: "Clear all",

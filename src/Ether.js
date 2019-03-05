@@ -2,12 +2,11 @@ import Web3 from 'web3'
 import Fortmatic from 'fortmatic';
 
 import * as Names from './contracts/Names'
+import * as TopChannels from './contracts/TopChannels'
 
 const Ether = {
 
   contracts: {},
-
-  price: null,
 
   start: async () => {
     window.ether = Ether;
@@ -22,27 +21,11 @@ const Ether = {
     }
 
     Ether.loadContract(Names)
-
-    Ether.price = await Ether.getPrice()
+    Ether.loadContract(TopChannels)
   },
 
   getContract: (contract) => new Ether.web3.eth.Contract(contract.ABI, contract.address),
   loadContract: (contract) => Ether.contracts[contract.name] = Ether.getContract(contract),
-
-  getPrice: () => Ether.execute('names', 'price')().call(),
-
-  buyName: async (name) => {
-    const id = window.data.id
-    const price = await Ether.getPrice()
-    const method = Ether.execute('names', 'buyName')(id, name)
-    return Ether.send(method, price)
-  },
-
-  getOwner: (id) => Ether.execute('names', 'getOwner')(id).call(),
-
-  getName: (id) => Ether.execute('names', 'getName')(id).call(),
-
-  isUsed: (name) => Ether.execute('names', 'isUsed')(name).call(),
 
   execute: (contract, name) => Ether.contracts[contract].methods[name],
 

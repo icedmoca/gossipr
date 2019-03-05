@@ -31,6 +31,7 @@ import MuteIcon from '@material-ui/icons/NotificationsOff'
 import MultilineIcon from '@material-ui/icons/SubdirectoryArrowLeft'
 import CheckIcon from '@material-ui/icons/Check'
 import HomeIcon from '@material-ui/icons/Home'
+import EarthIcon from '@material-ui/icons/Public'
 
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
@@ -51,6 +52,8 @@ import Node from '../Node'
 import Themes from '../Themes'
 import * as Messenger from "../Messenger";
 import Ether from '../Ether'
+import * as Names from '../contracts/Names'
+import * as TopChannels from '../contracts/TopChannels'
 import Lang from '../Lang'
 
 export default class extends React.Component {
@@ -124,6 +127,7 @@ export default class extends React.Component {
 
   refShareDialog = it => this.shareDialog = it
   refBuyNameDialog = it => this.buyNameDialog = it
+  refPromoteChannelDialog = it => this.promoteChannelDialog = it
 
   refNewChannel = it => this.newChannel = it
   joinNewChannel = () => {
@@ -198,6 +202,7 @@ export default class extends React.Component {
       <ChannelMenu ref={this.refChannelMenu} />
       <ShareDialog ref={this.refShareDialog} />
       <BuyNameDialog ref={this.refBuyNameDialog} />
+      <PromoteChannelDialog ref={this.refPromoteChannelDialog} />
     </>
   }
 }
@@ -306,6 +311,12 @@ class ChannelMenu extends React.Component {
     }
   }
 
+  promote = () => {
+    const {channel} = this.state
+    window.drawer.promoteChannelDialog.open(channel)
+    this.close()
+  }
+
   render() {
     const {pos} = this.state
     return <>
@@ -318,6 +329,10 @@ class ChannelMenu extends React.Component {
         <MenuItem onClick={this.share}>
           <ListItemIcon children={<ShareIcon />} />
           <ListItemText children={Lang().channel_menu.share} />
+        </MenuItem>
+        <MenuItem onClick={this.promote}>
+          <ListItemIcon children={<EarthIcon />} />
+          <ListItemText children={Lang().channel_menu.promote} />
         </MenuItem>
         <MenuItem onClick={this.mute}>
           <ListItemIcon children={<MuteIcon />} />
@@ -398,7 +413,13 @@ class ShareDialog extends React.Component{
 }
 
 class BuyNameDialog extends React.Component{
-  state={open: false, loading: false}
+  state={open: false, loading: false, price: "0"}
+  componentDidMount() { this.loadPrice() }
+
+  loadPrice = async () => {
+    this.state.price = await Names.getPrice()
+  }
+
   open = () => this.setState({open: true})
   close = () => this.setState({open: false, loading: false})
 
@@ -408,10 +429,10 @@ class BuyNameDialog extends React.Component{
     try{ 
       const name = this.nameInput.value
       if(name.trim() !== name) throw new Error(Lang().check_my_name.err_spaces);
-      if(await Ether.isUsed(name)) throw new Error(Lang().check_my_name.err_used);
+      if(await Names.isUsed(name)) throw new Error(Lang().check_my_name.err_used);
 
       this.setState({ loading: true })
-      await Ether.buyName(name) 
+      await Names.buyName(name) 
       window.app.snackbar(Lang().check_my_name.checked)
       Data.name = await Node.loadName(window.data.id)
       this.setState({ open: false, loading: false })
@@ -424,6 +445,7 @@ class BuyNameDialog extends React.Component{
   }
 
   render(){
+    const {price} = this.state
     return <>
       <Dialog 
         fullWidth
@@ -433,7 +455,7 @@ class BuyNameDialog extends React.Component{
         <DialogContent>
           <List>
             <ListItem style={{ justifyContent: 'center' }}>
-              <Typography children={Lang().check_my_name.text(Ether.price / 1000000000000000)}/>
+              <Typography children={Lang().check_my_name.text(Ether.web3.utils.fromWei(price, 'finney'))}/>
             </ListItem>
             <ListItem style={{justifyContent: 'center'}}>
               <TextField 
@@ -449,6 +471,64 @@ class BuyNameDialog extends React.Component{
                 </Typography>
               ) : (
                 <Button variant='outlined' onClick={this.buy} children={Lang().check_my_name.check} />
+              )
+            }</ListItem>
+          </List>
+        </DialogContent>
+      </Dialog>
+    </>
+  }
+}
+
+class PromoteChannelDialog extends React.Component {
+  state = { open: false, channel: null, loading: false, minimum: "0" }
+  componentDidMount() { this.loadMinimum() }
+
+  loadMinimum = async () => {
+    this.state.minimum = await Names.getPrice()
+  }
+
+  getMinimum = () => Ether.web3.utils.fromWei(this.state.minimum, 'finney')
+
+  open = (channel) => this.setState({ open: true, channel })
+  close = () => this.setState({ open: false, loading: false })
+
+  refNameInput = it => this.nameInput = it
+
+  buy = async () => {
+    try {
+      const {channel, minimum} = this.state
+      this.setState({ loading: true })
+      await TopChannels.add(channel, minimum)
+      window.app.snackbar(Lang().promote_channel.promoted)
+      this.setState({ open: false, loading: false })
+    }
+    catch (ex) {
+      window.app.snackbar(ex.message)
+      this.setState({ loading: false })
+    }
+  }
+
+  render() {
+    const { channel } = this.state
+    return <>
+      <Dialog
+        fullWidth
+        open={this.state.open}
+        onClose={this.close}>
+        <DialogTitle children={Lang().promote_channel.title(channel)} />
+        <DialogContent>
+          <List>
+            <ListItem style={{ justifyContent: 'center' }}>
+              <Typography children={Lang().promote_channel.text(channel, this.getMinimum())} />
+            </ListItem>
+            <ListItem style={{ justifyContent: 'space-around' }}>{
+              (this.state.loading) ? (
+                <Typography component='span'>
+                  <CircularProgress color='inherit' />
+                </Typography>
+              ) : (
+                <Button variant='outlined' onClick={this.buy} children={Lang().promote_channel.promote} />
               )
             }</ListItem>
           </List>

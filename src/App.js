@@ -10,7 +10,7 @@ import Drawer from './components/Drawer'
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
-import shareicon from './shareicon.png'
+import shareicon from './assets/shareicon.png'
 
 import {MuiThemeProvider} from '@material-ui/core/styles'
 import Themes from './Themes'

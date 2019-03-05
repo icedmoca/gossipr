@@ -18,19 +18,16 @@ export const dataURL = blob =>
   });
 
 const sanitize = (channel) => {
-  return unescape(channel)
-    .toLowerCase()
-    .replace(new RegExp(' ', 'g'), '-')
+  return unescape(channel).toLowerCase().replace(new RegExp(' ', 'g'), '-')
 }
 
 (async () => {
   window.data = { peers: {}, avatars: {}, names: [], id: null, node: null };
   console.log("Prepared storage data");
 
+  if (window.Notification) window.Notification.requestPermission();
   Messenger.register();
   Ether.start()
-
-  if (window.Notification) window.Notification.requestPermission();
 
   const last = Data.channel;
 
