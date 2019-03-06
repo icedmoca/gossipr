@@ -1,17 +1,15 @@
-import Ether from '../Ether'
+import * as Ether from '../Ether'
 
 export const name = 'topchannels'
 export const address = "0xdbb72993e0f59a2b899eda4b462bcbb22b74da17"
+const $ = (...args) => Ether.$(name)(...args)
 
-export const getMinimum = () => Ether.execute('topchannels', 'minimum')().call()
-export const getSize = () => Ether.execute('topchannels', 'size')().call()
-export const getChannel = (i) => Ether.execute('topchannels', 'getChannel')(i).call()
-export const getValue = (channel) => Ether.execute('topchannels', 'getValue')(channel).call()
+export const getMinimum = () => $('minimum')()
+export const getSize = () => $('size')()
+export const getChannel = (i) => $('getChannel')(i)
+export const getValue = (channel) => $('getValue')(channel)
 
-export const add = (channel, amount) => {
-  const method = Ether.execute('topchannels', 'add')(channel)
-	return Ether.send(method, amount)
-}
+export const add = (channel, amount) => $('add', amount)(channel)
 
 export const ABI = [
   {

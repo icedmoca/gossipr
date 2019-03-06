@@ -1,33 +1,32 @@
-import React, { useState } from "react";
+import React from "react";
 import ReactDOM from "react-dom";
 import * as serviceWorker from "./serviceWorker";
 
 import "./index.css";
 import App from "./App";
 
-import * as Messenger from "./Messenger";
 import Data from "./Data";
 import Node from "./Node";
-import Ether from './Ether';
+import * as Ether from './Ether';
 
-export const dataURL = blob =>
-  new Promise(callback => {
-    var reader = new FileReader();
-    reader.onload = () => callback(reader.result);
-    reader.readAsDataURL(blob);
-  });
+export const dataURL = blob => new Promise(callback => {
+  var reader = new FileReader();
+  reader.onload = () => callback(reader.result);
+  reader.readAsDataURL(blob);
+});
 
 const sanitize = (channel) => {
   return unescape(channel).toLowerCase().replace(new RegExp(' ', 'g'), '-')
 }
 
 (async () => {
+
+  serviceWorker.connect();
+
+  Ether.init()
+
   window.data = { peers: {}, avatars: {}, names: [], id: null, node: null };
   console.log("Prepared storage data");
-
-  if (window.Notification) window.Notification.requestPermission();
-  Messenger.register();
-  Ether.start()
 
   const last = Data.channel;
 

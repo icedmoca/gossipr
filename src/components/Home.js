@@ -41,11 +41,12 @@ import photo3 from '../assets/photo3.jpg'
 import DownIcon from '@material-ui/icons/KeyboardArrowDown'
 import UpIcon from '@material-ui/icons/KeyboardArrowUp'
 import CodeIcon from '@material-ui/icons/Code'
+import SearchIcon from '@material-ui/icons/Search'
 
 import Data from '../Data'
 import Lang from '../Lang'
 
-import Ether from '../Ether'
+import * as Ether from '../Ether'
 import * as TopChannels from '../contracts/TopChannels'
 
 export default class extends React.Component {
@@ -291,7 +292,7 @@ class PinDialog extends React.Component{
 }
 
 class TopChannelsDialog extends React.Component {
-  state = { open: false, channels: [] }
+  state = { open: false, channels: [], filter: null }
   componentDidMount() { this.loadChannels() }
 
   loadChannels = async () => {
@@ -301,6 +302,7 @@ class TopChannelsDialog extends React.Component {
       if(!id.startsWith('#')) continue
       const value = await TopChannels.getValue(id)
       this.state.channels.push({id, value})
+      this.state.channels.sort((x,y) => y.value - x.value)
       this.setState({})
     }
   }
@@ -311,8 +313,7 @@ class TopChannelsDialog extends React.Component {
   switch = ({id}) => () => window.location.hash = id
 
   render() {
-    const {channels} = this.state
-    console.log(channels.length)
+    const {channels, filter} = this.state
     return (
       <Dialog
         fullWidth
@@ -320,6 +321,14 @@ class TopChannelsDialog extends React.Component {
         onClose={this.close}>
         <DialogTitle children={Lang().top_channels.title} />
         <DialogContent>
+          <TextField
+            fullWidth
+            onChange={(e) => this.setState({filter: e.target.value})}
+            InputProps={{
+              startAdornment: <InputAdornment position="start"><SearchIcon/></InputAdornment>
+            }}
+          />
+          <br/><br/>
           {(channels.length > 0) ? (
             <Table>
               <TableHead>
@@ -329,10 +338,10 @@ class TopChannelsDialog extends React.Component {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {channels.map((channel, i) => (
+                {channels.filter(it => !filter || it.id.includes(filter)).map((channel, i) => (
                   <TableRow hover style={{cursor: 'pointer'}} onClick={this.switch(channel)} key={i}>
                     <TableCell children={channel.id} />
-                    <TableCell align="right" children={Ether.web3.utils.fromWei(channel.value, 'finney') + ' mΞ'} />
+                    <TableCell align="right" children={Ether.getWeb3().utils.fromWei(channel.value, 'finney') + ' mΞ'} />
                   </TableRow>
                 ))}
               </TableBody>

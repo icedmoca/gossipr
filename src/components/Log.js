@@ -1,5 +1,4 @@
 import React from "react";
-import ReactDOM from "react-dom";
 
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
@@ -15,7 +14,6 @@ import QuoteIcon from '@material-ui/icons/FormatQuote'
 import SaveIcon from '@material-ui/icons/Save'
 import Typography from '@material-ui/core/Typography'
 import Grid from '@material-ui/core/Grid'
-import Divider from '@material-ui/core/Divider'
 import CircularProgress from '@material-ui/core/CircularProgress'
 
 import ClearIcon from '@material-ui/icons/Clear'
@@ -57,7 +55,7 @@ export default class extends React.Component {
   componentDidMount() { window.logger = this }
 
   getSnapshotBeforeUpdate(prevProps, prevState){
-    return (window.innerHeight + window.scrollY) >= (document.body.scrollHeight - 100)
+    return !prevState.tooltip || (window.innerHeight + window.scrollY) >= (document.body.scrollHeight - 100)
   }
 
   componentDidUpdate(props, state, snapshot) {

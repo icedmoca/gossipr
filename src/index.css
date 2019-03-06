@@ -23,6 +23,8 @@ a {
   color: inherit;
 }
 
+th, td { border-bottom: 0px !important; }
+
 .ellipsis {
   text-overflow: ellipsis;
   overflow: hidden;

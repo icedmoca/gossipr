@@ -49,9 +49,7 @@ import CircularProgress from '@material-ui/core/CircularProgress'
 
 import Data from "../Data";
 import Node from '../Node'
-import Themes from '../Themes'
-import * as Messenger from "../Messenger";
-import Ether from '../Ether'
+import * as Ether from '../Ether'
 import * as Names from '../contracts/Names'
 import * as TopChannels from '../contracts/TopChannels'
 import Lang from '../Lang'
@@ -455,7 +453,7 @@ class BuyNameDialog extends React.Component{
         <DialogContent>
           <List>
             <ListItem style={{ justifyContent: 'center' }}>
-              <Typography children={Lang().check_my_name.text(Ether.web3.utils.fromWei(price, 'finney'))}/>
+              <Typography children={Lang().check_my_name.text(Ether.getWeb3().utils.fromWei(price, 'finney'))}/>
             </ListItem>
             <ListItem style={{justifyContent: 'center'}}>
               <TextField 
@@ -488,7 +486,7 @@ class PromoteChannelDialog extends React.Component {
     this.state.minimum = await Names.getPrice()
   }
 
-  getMinimum = () => Ether.web3.utils.fromWei(this.state.minimum, 'finney')
+  getMinimum = () => Ether.getWeb3().utils.fromWei(this.state.minimum, 'finney')
 
   open = (channel) => this.setState({ open: true, channel })
   close = () => this.setState({ open: false, loading: false })

@@ -1,18 +1,17 @@
-import Ether from '../Ether'
+import * as Ether from '../Ether'
 
 export const name = 'names'
 export const address = "0xfacec0c2ab6102e031c8fc13734a897766358643"
+const $ = (...args) => Ether.$(name)(...args)
 
-export const getPrice = () => Ether.execute('names', 'price')().call()
-export const getOwner = (id) => Ether.execute('names', 'getOwner')(id).call()
-export const getName = (id) => Ether.execute('names', 'getName')(id).call()
-export const isUsed = (name) => Ether.execute('names', 'isUsed')(name).call()
+export const getPrice = () => $('price')()
+export const getOwner = (id) => $('getOwner')(id)
+export const getName = (id) => $('getName')(id)
+export const isUsed = (name) => $('isUsed')(name)
 
 export const buyName = async (name) => {
-	const id = window.data.id
-	const price = await getPrice()
-	const method = Ether.execute('names', 'buyName')(id, name)
-	return Ether.send(method, price)
+	const price = await getPrice(), id = window.data.id
+	return $('buyName', price)(id, name)
 }
 
 export const ABI = [

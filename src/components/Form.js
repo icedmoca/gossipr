@@ -16,7 +16,6 @@ import Recorder from 'recorder-js';
 
 import { dataURL } from '../index'
 
-import * as Messenger from '../Messenger'
 import Data from '../Data'
 import Node from '../Node'
 import Lang from '../Lang'

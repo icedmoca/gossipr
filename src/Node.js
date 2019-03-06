@@ -1,6 +1,5 @@
 import Data from './Data'
-import Ether from './Ether'
-import * as Messenger from './Messenger'
+import * as serviceWorker from './serviceWorker'
 
 import Crypto from 'crypto-js'
 
@@ -38,6 +37,7 @@ const Node = {
 
     const channel = Data.channel
     if (channel){
+      if (window.Notification) window.Notification.requestPermission();
 
       if(!Data.channels.includes(channel))
         Node.subscribe(channel)
@@ -165,7 +165,7 @@ const Node = {
     if (msg.peer === window.id) return
     if (Data.blocked.includes(msg.peer)) return
     if (Data.channel === msg.channel && document.visibilityState === 'visible') return
-    Messenger.notify(msg.channel, msg.data + '\n~' + msg.meta.name)
+    serviceWorker.notify(msg.channel, msg.data + '\n~' + msg.meta.name)
   },
 
   getName: (id) => {

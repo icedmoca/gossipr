@@ -12,6 +12,16 @@
 
 import Lang from './Lang'
 
+export const connect = async () => {
+  window.reg = await navigator.serviceWorker.ready
+  console.log('Successfully connected to service worker')
+}
+
+export const notify = async (channel, body) => {
+  if (!window.reg) return
+  window.reg.showNotification(channel, { body, icon: 'favicon.ico' })
+}
+
 const isLocalhost = Boolean(
   window.location.hostname === 'localhost' ||
     // [::1] is the IPv6 localhost address.
