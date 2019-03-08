@@ -21,10 +21,6 @@ const sanitize = (channel) => {
 
 (async () => {
 
-  serviceWorker.connect();
-
-  Ether.init()
-
   window.data = { peers: {}, avatars: {}, names: [], id: null, node: null };
   console.log("Prepared storage data");
 
@@ -41,6 +37,10 @@ const sanitize = (channel) => {
       window.location.hash = last;
     }
   }
+
+  serviceWorker.connect();
+
+  Ether.init()
 
   if(!Array.isArray(Data.messages)) Data.messages = []
 

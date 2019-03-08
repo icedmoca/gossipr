@@ -13,7 +13,6 @@ import ListItemText from "@material-ui/core/ListItemText";
 
 import InputBase from "@material-ui/core/InputBase";
 import IconButton from "@material-ui/core/IconButton";
-import Hidden from '@material-ui/core/Hidden';
 
 import Avatar from "@material-ui/core/Avatar";
 import AvatarIcon from "@material-ui/icons/Person";
@@ -29,9 +28,11 @@ import JoinIcon from '@material-ui/icons/Send'
 import BlockIcon from "@material-ui/icons/Block";
 import MuteIcon from '@material-ui/icons/NotificationsOff'
 import MultilineIcon from '@material-ui/icons/SubdirectoryArrowLeft'
-import CheckIcon from '@material-ui/icons/Check'
+import CheckIcon from '@material-ui/icons/HowToReg'
 import HomeIcon from '@material-ui/icons/Home'
 import EarthIcon from '@material-ui/icons/Public'
+import ArobaseIcon from '@material-ui/icons/AlternateEmail'
+import EditIcon from '@material-ui/icons/Edit'
 
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
@@ -40,12 +41,12 @@ import Typography from "@material-ui/core/Typography";
 
 import DialogTitle from "@material-ui/core/DialogTitle";
 import Dialog from "@material-ui/core/Dialog";
-import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import InputAdornment from '@material-ui/core/InputAdornment'
 import CircularProgress from '@material-ui/core/CircularProgress'
+import ClickAwayListener from '@material-ui/core/ClickAwayListener'
 
 import Data from "../Data";
 import Node from '../Node'
@@ -77,25 +78,51 @@ export default class extends React.Component {
   refChannelMenu = it => (this.channelMenu = it);
   openChannelMenu = channel => e => {
     e.preventDefault()
+    e.stopPropagation()
     this.channelMenu.open({x: e.pageX, y: e.pageY}, channel)
   };
+
+  startRenaming = (channel) => {
+    this.setState({rename: channel})
+    setTimeout(() => this.renameInput.select(), 100)
+  }
+  stopRenaming = () => this.setState({rename: null})
+  rename = (e) => {
+    const aliases = Data.aliases
+    aliases[this.state.rename] = e.target.value
+    Data.aliases = aliases
+  }
 
   renderChannel = channel => {
     const theme = window.app.getTheme()
     return (
       <ListItem
         key={channel}
-        style={{ background: Data.channel === channel ? window.app.getTheme().palette.secondary.main : null }}
+        style={{ background: Data.channel === channel ? theme.palette.secondary.main : null }}
         onContextMenu={this.openChannelMenu(channel)}>
-        <Typography
-          children={channel}
-          variant="h6"
-          style={{ 
-            width: 0, cursor: 'pointer', flex: 1, marginRight: 20,
-            textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' 
-          }}
-          onClick={this.handleChannelClick(channel)}
-        />
+        {(this.state.rename === channel) ? (
+          <ClickAwayListener onClickAway={this.stopRenaming}>
+            <InputBase
+              autoFocus
+              defaultValue={Data.alias(channel)}
+              onChange={this.rename}
+              onKeyPress={(e) => (e.key === 'Enter') && this.stopRenaming()}
+              inputRef={it => this.renameInput = it}
+              onContextMenu={(e) => e.stopPropagation()}
+              style={{fontSize: "20px", flex: 1,}}
+            />
+          </ClickAwayListener>
+        ) : (
+          <Typography
+            children={Data.alias(channel)}
+            variant="h6"
+            style={{ 
+              width: 0, cursor: 'pointer', flex: 1, marginRight: 20,
+              textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' 
+            }}
+            onClick={this.handleChannelClick(channel)}
+          />
+        )}
         <Typography variant='h6'>
           {window.data.peers[channel].length}
         </Typography>
@@ -230,6 +257,11 @@ class SettingsMenu extends React.Component {
     window.drawer.buyNameDialog.open()
     this.close();
   }
+  
+  copyId = () => {
+    copy(window.data.id)
+    window.app.snackbar(Lang().settings_menu.copied_id)
+  }
 
   render() {
     return <Menu
@@ -262,6 +294,10 @@ class SettingsMenu extends React.Component {
       <MenuItem onClick={this.unblockAll}>
         <ListItemIcon children={<BlockIcon/>}/>
         <ListItemText children={Lang().settings_menu.unblock_all}/>
+      </MenuItem>
+      <MenuItem onClick={this.copyId}>
+        <ListItemIcon children={<ArobaseIcon/>}/>
+        <ListItemText children={Lang().settings_menu.copy_my_id}/>
       </MenuItem>
     </Menu>
   }
@@ -315,6 +351,11 @@ class ChannelMenu extends React.Component {
     this.close()
   }
 
+  rename = () => {
+    window.drawer.startRenaming(this.state.channel)
+    this.close()
+  }
+
   render() {
     const {pos} = this.state
     return <>
@@ -324,6 +365,10 @@ class ChannelMenu extends React.Component {
         anchorEl={this.anchor}
         open={Boolean(pos)}
         onClose={this.close}>
+        <MenuItem onClick={this.rename}>
+          <ListItemIcon children={<EditIcon />} />
+          <ListItemText children={Lang().channel_menu.rename} />
+        </MenuItem>
         <MenuItem onClick={this.share}>
           <ListItemIcon children={<ShareIcon />} />
           <ListItemText children={Lang().channel_menu.share} />
@@ -357,6 +402,8 @@ class ShareDialog extends React.Component{
   state={open: false, channel: null}
   open = (channel) => this.setState({open: true, channel})
   close = () => this.setState({open: false})
+
+  alias = () => Data.alias(this.state.channel)
   
   href = () => {
     const href = window.location.href.split("#")[0];
@@ -381,7 +428,7 @@ class ShareDialog extends React.Component{
         fullWidth
         open={this.state.open}
         onClose={this.close}>
-        <DialogTitle children={Lang().channel_share_dialog.title(this.state.channel)} />
+        <DialogTitle children={Lang().channel_share_dialog.title(this.alias())} />
         <DialogContent>
           <List>
             <ListItem style={{ justifyContent: 'center' }}>
@@ -482,6 +529,8 @@ class PromoteChannelDialog extends React.Component {
   state = { open: false, channel: null, loading: false, minimum: "0" }
   componentDidMount() { this.loadMinimum() }
 
+  alias = () => Data.alias(this.state.channel)
+
   loadMinimum = async () => {
     this.state.minimum = await Names.getPrice()
   }
@@ -508,17 +557,16 @@ class PromoteChannelDialog extends React.Component {
   }
 
   render() {
-    const { channel } = this.state
     return <>
       <Dialog
         fullWidth
         open={this.state.open}
         onClose={this.close}>
-        <DialogTitle children={Lang().promote_channel.title(channel)} />
+        <DialogTitle children={Lang().promote_channel.title(this.alias())} />
         <DialogContent>
           <List>
             <ListItem style={{ justifyContent: 'center' }}>
-              <Typography children={Lang().promote_channel.text(channel, this.getMinimum())} />
+              <Typography children={Lang().promote_channel.text(this.alias(), this.getMinimum())} />
             </ListItem>
             <ListItem style={{ justifyContent: 'space-around' }}>{
               (this.state.loading) ? (

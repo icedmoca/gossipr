@@ -30,7 +30,7 @@ export default class extends React.Component{
           style={{flex: 1, marginRight: 20, maxWidth: 1000}}
           color="inherit" 
           variant="h6" 
-          children={Data.channel}
+          children={Data.alias(Data.channel)}
         />
         <Typography color="inherit" variant="h6" children={this.state.peers} />
         <PeopleIcon style={{marginLeft: 5}}/>

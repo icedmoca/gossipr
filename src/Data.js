@@ -26,6 +26,11 @@ const Data = {
     if(window.location.hash !== value) window.location.hash = value
   },
 
+  get aliases() { return JSON.parse(localStorage.aliases || '{}') },
+  set aliases(value) { localStorage.aliases = JSON.stringify(value) },
+
+  alias(channel) { return Data.aliases[channel] || channel },
+
   get multiline() { return localStorage.multiline === 'true' },
   set multiline(value) { return localStorage.multiline = value },
 

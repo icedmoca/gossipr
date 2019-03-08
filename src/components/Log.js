@@ -113,7 +113,7 @@ export default class extends React.Component {
       <div style={{ float: "left", clear: "both" }} ref={it => this.end = it }/>
       {(this.state.tooltip) && (
         <div style={{paddingLeft: 16, paddingRight: 16, textAlign: 'center'}}>
-          <Typography variant='h5' children={Lang().welcome_message.title(Data.channel)}/>
+          <Typography variant='h5' children={Lang().welcome_message.title(Data.alias(Data.channel))}/>
           <Typography variant='subtitle1' children={Lang().welcome_message.text1} />
           <Typography variant='subtitle1' children={Lang().welcome_message.text2} />
         </div>
