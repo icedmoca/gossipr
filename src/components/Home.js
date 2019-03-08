@@ -2,7 +2,7 @@ import React from 'react'
 
 import '../index.css';
 
-import logo from '../assets/favicon.ico'
+import logo from '../assets/favicon.png'
 
 import Typography from '@material-ui/core/Typography'
 import List from "@material-ui/core/List";

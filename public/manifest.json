@@ -1,9 +1,10 @@
 {
   "short_name": "Gossipr",
   "name": "Gossipr",
+  "description": "Chat with your friends or with strangers, without middleman or third party, without installation, and without registration",
   "icons": [
     {
-      "src": "icon.png",
+      "src": "favicon.png",
       "sizes": "512x512 64x64 32x32 24x24 16x16",
       "type": "image/png"
     }
