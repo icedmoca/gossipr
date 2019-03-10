@@ -19,7 +19,7 @@ export const connect = async () => {
 
 export const notify = async (channel, body) => {
   if (!window.reg) return
-  window.reg.showNotification(channel, { body, icon: 'favicon.ico' })
+  window.reg.showNotification(channel, { body, icon: 'favicon.png' })
 }
 
 const isLocalhost = Boolean(

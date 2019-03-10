@@ -11,8 +11,10 @@ const Node = {
   get id() { return window.data.id },
   get ready() { return Node.node && Node.node.isOnline() },
   get buffer() { return Node.node.types.Buffer },
-
-  config: {
+  get privKey() { return Node.node._peerInfo.id.toJSON().privKey },
+ 
+  config: () => ({
+    init: {privateKey: Data.privKey},
     repo: "/gossipr/ipfs",
     EXPERIMENTAL: { pubsub: true },
     config: {
@@ -20,10 +22,10 @@ const Node = {
         Swarm: ["/dns4/ws-star.discovery.libp2p.io/tcp/443/wss/p2p-websocket-star"]
       }
     }
-  },
+  }),
 
   start: () => new Promise(callback => {
-    const node = new window.Ipfs(Node.config)
+    const node = new window.Ipfs(Node.config())
     node.on('ready', async () => {
       window.data.node = node
       window.data.id = (await node.id()).id
@@ -196,6 +198,20 @@ const Node = {
     window.data.avatars[hash] = 'data:image/png;base64,'+data.toString("base64")
     if(window.logger) window.logger.setState({})
   },
+
+  subscribeTransfer: async (hash) => {
+    const hash = hash || await Node.hash(Node.privKey)
+    const doubleHash = await Node.hash(hash)
+    const listener = async (packet) => {
+      // WIP
+    }
+    await Node.node.pubsub.subscribe(doubleHash, listener)
+  },
+
+  publishTransfer: async (hash) => {
+    const doubleHash = await Node.hash(hash)
+    // WIP 
+  }
 
 }
 

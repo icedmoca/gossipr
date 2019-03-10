@@ -73,6 +73,7 @@ const Langs = {
       unblocked_all: "Tout le monde a été débloqué",
       copy_my_id: "Copier mon ID",
       copied_id: "Votre ID a été copié",
+      transfer: "Transférer mes données",
     },
     channel_menu: {
       rename: "Renommer",
@@ -98,6 +99,11 @@ const Langs = {
       err_used: "Ce nom est déjà utilisé",
       check: "Valider mon pseudo",
       checked: "Transaction validée avec succès",
+    },
+    transfer_dialog: {
+      title: "Transférer mes données",
+      send: "Envoyer",
+      receive: "Recevoir",
     }
   },
   en: {
@@ -172,6 +178,7 @@ const Langs = {
       unblocked_all: "Everyone has been unblocked",
       copy_my_id: "Copy my ID",
       copied_id: "Your ID has been copied",
+      transfer: "Transfer my data",
     },
     channel_menu: {
       rename: "Rename",
@@ -197,6 +204,11 @@ const Langs = {
       err_used: "This nickname is already used",
       check: "Validate my nickname",
       checked: "Successfully validated transaction",
+    },
+    transfer_dialog: {
+      title: "Transfer my data",
+      send: "Send",
+      receive: "Receive",
     }
   }
 }

@@ -17,6 +17,9 @@ const Data = {
     window.drawer.setState({})
   })() },
 
+  get privKey() { return localStorage.privKey },
+  set privKey(value) { localStorage.privKey = value },
+
   get theme() { return localStorage.theme || "navy" },
   set theme(value) { localStorage.theme = value },
 

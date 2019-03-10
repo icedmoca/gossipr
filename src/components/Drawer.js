@@ -2,6 +2,7 @@ import React from "react";
 
 import copy from "clipboard-copy";
 import { QRCode } from 'react-qr-svg'
+import QRScan from 'react-qr-reader'
 
 import Drawer from "@material-ui/core/Drawer";
 import Divider from "@material-ui/core/Divider";
@@ -33,6 +34,7 @@ import HomeIcon from '@material-ui/icons/Home'
 import EarthIcon from '@material-ui/icons/Public'
 import ArobaseIcon from '@material-ui/icons/AlternateEmail'
 import EditIcon from '@material-ui/icons/Edit'
+import DevicesIcon from '@material-ui/icons/Devices'
 
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
@@ -84,7 +86,10 @@ export default class extends React.Component {
 
   startRenaming = (channel) => {
     this.setState({rename: channel})
-    setTimeout(() => this.renameInput.select(), 100)
+    setTimeout(() => {
+      this.renameInput.focus()
+      this.renameInput.setSelectionRange(0,99999);
+    }, 100)
   }
   stopRenaming = () => this.setState({rename: null})
   rename = (e) => {
@@ -153,6 +158,7 @@ export default class extends React.Component {
   refShareDialog = it => this.shareDialog = it
   refBuyNameDialog = it => this.buyNameDialog = it
   refPromoteChannelDialog = it => this.promoteChannelDialog = it
+  refTransferDialog = it => this.transferDialog = it
 
   refNewChannel = it => this.newChannel = it
   joinNewChannel = () => {
@@ -228,6 +234,7 @@ export default class extends React.Component {
       <ShareDialog ref={this.refShareDialog} />
       <BuyNameDialog ref={this.refBuyNameDialog} />
       <PromoteChannelDialog ref={this.refPromoteChannelDialog} />
+      <TransferDialog ref={this.refTransferDialog}/>
     </>
   }
 }
@@ -261,6 +268,11 @@ class SettingsMenu extends React.Component {
   copyId = () => {
     copy(window.data.id)
     window.app.snackbar(Lang().settings_menu.copied_id)
+  }
+
+  transfer = () => {
+    window.drawer.transferDialog.open()
+    this.close()
   }
 
   render() {
@@ -299,6 +311,12 @@ class SettingsMenu extends React.Component {
         <ListItemIcon children={<ArobaseIcon/>}/>
         <ListItemText children={Lang().settings_menu.copy_my_id}/>
       </MenuItem>
+      {/*
+        <MenuItem onClick={this.transfer}>
+          <ListItemIcon children={<DevicesIcon />} />
+          <ListItemText children={Lang().settings_menu.transfer} />
+        </MenuItem>
+      */}
     </Menu>
   }
 }
@@ -577,6 +595,68 @@ class PromoteChannelDialog extends React.Component {
                 <Button variant='outlined' onClick={this.buy} children={Lang().promote_channel.promote} />
               )
             }</ListItem>
+          </List>
+        </DialogContent>
+      </Dialog>
+    </>
+  }
+}
+
+class TransferDialog extends React.Component {
+  state = { open: false, mode: null }
+  
+  open = () => this.setState({ open: true, mode: null })
+  close = () => this.setState({ open: false })
+
+  modeSend = () => this.setState({mode: "send"})
+  modeReceive = () => this.setState({mode: "receive"})
+
+  handleScan = (data) => {
+    Data.privKey = data
+
+  }
+
+  render() {
+    const {mode} = this.state
+    const theme = window.app.getTheme()
+    return <>
+      <Dialog
+        fullWidth
+        open={this.state.open}
+        onClose={this.close}>
+        <DialogTitle children={Lang().transfer_dialog.title} />
+        <DialogContent>
+          <List>
+            {(!mode) && (
+              <ListItem style={{ justifyContent: 'space-around' }}>
+                <Button variant='outlined' onClick={this.modeSend} children={Lang().transfer_dialog.send} />
+                <Button variant='outlined' onClick={this.modeReceive} children={Lang().transfer_dialog.receive} />
+              </ListItem>
+            )}
+            {(mode === "send") && (<>
+              <ListItem style={{ justifyContent: 'center' }}>
+                <QRCode
+                  bgColor={theme.palette.background.paper}
+                  fgColor={theme.palette.type === 'dark' ? '#FFFFFF' : '#000000'}
+                  style={{ width: 256 }}
+                  value={Node.privKey}
+                />
+              </ListItem>
+              <ListItem style={{ justifyContent: 'center' }}>
+                <Button variant='outlined' onClick={this.copy} children={Lang().transfer_dialog.copy} />
+              </ListItem>
+            </>)}
+            {(mode === "receive") && (<>
+              <ListItem style={{ justifyContent: 'center' }}>
+                <QRScan
+                  onScan={this.handleScan}
+                  style={{width: '100%'}}
+                />
+              </ListItem>
+              <ListItem style={{ justifyContent: 'center' }}>
+                <Button variant='outlined' onClick={this.paste} children={Lang().transfer_dialog.paste} />
+              </ListItem>
+            </>)}
           </List>
         </DialogContent>
       </Dialog>
